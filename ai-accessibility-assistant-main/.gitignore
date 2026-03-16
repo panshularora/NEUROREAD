@@ -1,0 +1,23 @@
+backend/venv/
+venv/
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+.env
+backend/.env
+# Python
+__pycache__/
+*.pyc
+
+# Database
+*.db
+
+# Audio generated files
+backend/static/audio/
+
+# Node
+node_modules/
+
+# Env files
+.env
