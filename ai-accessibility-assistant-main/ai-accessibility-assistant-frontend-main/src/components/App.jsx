@@ -7,6 +7,7 @@ import LearningMode from './LearningMode';
 import Navbar from './Navbar';
 import SimplifierModal from './SimplifierModal';
 import Dashboard from '../pages/Dashboard.jsx';
+import BookBackground from './BookBackground';
 
 function safeGsap() {
   const gsap = window.gsap;
@@ -273,7 +274,12 @@ export default function App() {
         </div>
 
         <div className="grid" style={{ gridTemplateColumns: '1fr', gridTemplateRows: '1fr' }}>
-          <AssistiveMode active={mode === 'assistive'} onOpenSimplifier={() => setSimplifierOpen(true)} />
+          <AssistiveMode
+          active={mode === 'assistive'}
+          onOpenSimplifier={() => setSimplifierOpen(true)}
+          onRunSimplifier={runSimplifier}
+          onSetInputText={setInputText}
+        />
           <LearningMode active={mode === 'learning'} />
         </div>
       </div>
@@ -283,46 +289,50 @@ export default function App() {
   const allHistorySessions = useMemo(() => [...historySessions, ...DEFAULT_HISTORY], [historySessions]);
 
   return (
-    <div className="bg-cream text-charcoal font-sans antialiased overflow-x-hidden selection:bg-moss selection:text-cream">
+    <div className="bg-cream text-charcoal font-sans antialiased overflow-x-hidden selection:bg-moss selection:text-cream min-h-screen">
       <div className="noise-overlay" />
+      
+      <BookBackground />
 
-      <SimplifierModal
-        open={simplifierOpen}
-        onClose={closeSimplifier}
-        userId={userId}
-        onUserIdChange={(id) => setUserIdState(id)}
-        profile={profile}
-        onProfileChange={setProfile}
-        inputText={inputText}
-        onInputTextChange={setInputText}
-        dyslexiaOn={dyslexiaOn}
-        onToggleDyslexia={toggleDyslexia}
-        audioOn={audioOn}
-        onToggleAudio={toggleAudio}
-        simplifiedText={simplifiedText}
-        loading={loading}
-        metrics={metrics}
-        error={error}
-        onRunSimplifier={runSimplifier}
-      />
+      <div className="relative z-10">
+        <SimplifierModal
+          open={simplifierOpen}
+          onClose={closeSimplifier}
+          userId={userId}
+          onUserIdChange={(id) => setUserIdState(id)}
+          profile={profile}
+          onProfileChange={setProfile}
+          inputText={inputText}
+          onInputTextChange={setInputText}
+          dyslexiaOn={dyslexiaOn}
+          onToggleDyslexia={toggleDyslexia}
+          audioOn={audioOn}
+          onToggleAudio={toggleAudio}
+          simplifiedText={simplifiedText}
+          loading={loading}
+          metrics={metrics}
+          error={error}
+          onRunSimplifier={runSimplifier}
+        />
 
-      <Navbar
-        mode={mode}
-        onModeChange={setModeSafe}
-        onNavigate={(target) => {
-          const el = target === 'dashboard' ? dashboardRef.current : modesRef.current;
-          el?.scrollIntoView?.({ behavior: 'smooth' });
-        }}
-      />
-      <Hero />
-      {impactSection}
-      {modesSection}
-      <div ref={dashboardRef}>
-        <Dashboard />
+        <Navbar
+          mode={mode}
+          onModeChange={setModeSafe}
+          onNavigate={(target) => {
+            const el = target === 'dashboard' ? dashboardRef.current : modesRef.current;
+            el?.scrollIntoView?.({ behavior: 'smooth' });
+          }}
+        />
+        <Hero />
+        {impactSection}
+        {modesSection}
+        <div ref={dashboardRef}>
+          <Dashboard />
+        </div>
+
+        {/* History: render live sessions first (prepend), then the original static sessions inside History component */}
+        <History sessions={allHistorySessions} expandedId={expandedHistoryId} onToggleExpanded={setExpandedHistoryId} />
       </div>
-
-      {/* History: render live sessions first (prepend), then the original static sessions inside History component */}
-      <History sessions={allHistorySessions} expandedId={expandedHistoryId} onToggleExpanded={setExpandedHistoryId} />
     </div>
   );
 }

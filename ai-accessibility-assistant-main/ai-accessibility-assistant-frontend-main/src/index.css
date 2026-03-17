@@ -14,6 +14,117 @@
   }
 }
 
+/* Dark Mode Variables & Transitions */
+:root {
+  --bg: #F2E9DE;
+  --surface: #FFFFFF;
+  --surface-2: #F9F7F2;
+  --text: #2F2A24;
+  --text-muted: rgba(47, 42, 36, 0.6);
+  --border: rgba(46, 64, 54, 0.1);
+}
+
+.dark {
+  --bg: #1A1A1A;
+  --surface: #242424;
+  --surface-2: #2E2E2E;
+  --text: #F2F0E9;
+  --text-muted: rgba(242, 240, 233, 0.5);
+  --border: rgba(242, 240, 233, 0.08);
+}
+
+/* Apply variables to base elements */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.bg-cream {
+  background-color: var(--bg) !important;
+}
+
+.bg-white {
+  background-color: var(--surface) !important;
+}
+
+.text-charcoal {
+  color: var(--text) !important;
+}
+
+.text-charcoal\/70 {
+  color: var(--text-muted) !important;
+}
+
+.text-charcoal\/60 {
+  color: var(--text-muted) !important;
+}
+
+.text-charcoal\/40 {
+  color: var(--text-muted) !important;
+  opacity: 0.6;
+}
+
+.border-moss\/10 {
+  border-color: var(--border) !important;
+}
+
+/* Navbar Dark Mode */
+.dark #navbar.bg-white\/60 {
+  background-color: rgba(26, 26, 26, 0.8) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* Specific fix for Assistive Mode icons */
+.icon-badge .iconify {
+  color: #2e4036 !important;
+  transition: all 0.3s ease;
+}
+
+/* Hover state for Assistive Mode cards in Light Mode only */
+body:not(.dark) #content-assistive .clickable-card:hover .icon-badge {
+  background-color: #ffffff !important;
+  border-color: #000000 !important;
+}
+
+body:not(.dark) #content-assistive .clickable-card:hover .iconify,
+body:not(.dark) #content-assistive .clickable-card:hover .iconify svg,
+body:not(.dark) #content-assistive .clickable-card:hover .iconify path {
+  color: #000000 !important;
+  fill: #000000 !important;
+}
+
+/* Hover state for other modes or dark mode (fallback to cream) */
+.dark #content-assistive .clickable-card:hover .iconify,
+#content-learning .clickable-card:hover .iconify {
+  color: #f2f0e9 !important;
+  fill: #f2f0e9 !important;
+}
+
+/* Theme Overlay */
+#theme-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  pointer-events: none;
+}
+
+/* Icon Animation */
+.theme-icon-anim {
+  animation: theme-icon-in 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes theme-icon-in {
+  from {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
 /* Neuroread global styles ported from the original HTML */
 * {
   font-family: 'OpenDyslexic', sans-serif !important;

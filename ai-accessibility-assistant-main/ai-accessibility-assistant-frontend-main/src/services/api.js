@@ -16,7 +16,6 @@ export function setUserId(userId) {
 }
 
 async function request(path, { method = 'GET', headers, body } = {}) {
-  // Temporary debug log (safe to remove later)
   // eslint-disable-next-line no-console
   console.debug('[api]', method, path);
   const controller = new AbortController();
@@ -63,6 +62,8 @@ function mapProfile(profileLabel) {
   if (p.includes('technical') || p.includes('expert') || p.includes('academic')) return 'academic';
   return 'default';
 }
+
+// ─── Assistive APIs ──────────────────────────────────────────────
 
 export async function simplifyText(text, profile, user_id) {
   const userId = user_id || getStoredUserId();
@@ -124,46 +125,6 @@ export async function getDashboard(userId) {
   return request(`/analytics/dashboard/${encodeURIComponent(userId)}`);
 }
 
-export async function getPhonics(word) {
-  return request('/learning/phonics', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ word }),
-  });
-}
-
-export async function getLearningExercise(text, blanks = 3) {
-  return request('/learning/exercise', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, blanks }),
-  });
-}
-
-export async function getSpellingPractice(text, max_words = 5) {
-  return request('/learning/spelling', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, max_words }),
-  });
-}
-
-export async function getComprehension(text, max_questions = 3) {
-  return request('/learning/comprehension', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, max_questions }),
-  });
-}
-
-export async function updatePersonalization(userId, session_metrics) {
-  return request('/personalization/update', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ user_id: userId, session_metrics }),
-  });
-}
-
 export async function getHeatmap(text) {
   return request('/assistive/heatmap', {
     method: 'POST',
@@ -200,3 +161,102 @@ export async function askCompanion(text, user_action) {
   });
 }
 
+export async function updatePersonalization(userId, session_metrics) {
+  return request('/personalization/update', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, session_metrics }),
+  });
+}
+
+// ─── Legacy Learning APIs (kept for backward compat) ─────────────
+
+export async function getPhonics(word) {
+  return request('/learning/phonics', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ word }),
+  });
+}
+
+export async function getLearningExercise(text, blanks = 3) {
+  return request('/learning/exercise', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, blanks }),
+  });
+}
+
+export async function getSpellingPractice(text, max_words = 5) {
+  return request('/learning/spelling', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, max_words }),
+  });
+}
+
+export async function getComprehension(text, max_questions = 3) {
+  return request('/learning/comprehension', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, max_questions }),
+  });
+}
+
+// ─── New Learning APIs ───────────────────────────────────────────
+
+export async function getFlashcard(letter) {
+  return request('/learning/flashcards', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ letter }),
+  });
+}
+
+export async function getSoundMatch(sound) {
+  return request('/learning/sound-match', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sound }),
+  });
+}
+
+export async function getBuildWord(word) {
+  return request('/learning/build-word', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ word }),
+  });
+}
+
+export async function getRhyme(word) {
+  return request('/learning/rhyme', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ word }),
+  });
+}
+
+export async function getPictureMatch(word) {
+  return request('/learning/picture-match', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ word }),
+  });
+}
+
+export async function getLesson(userId) {
+  return request(`/learning/lesson/${encodeURIComponent(userId)}`);
+}
+
+export async function getLearningProgress(userId) {
+  return request(`/learning/progress/${encodeURIComponent(userId)}`);
+}
+
+export async function updateLearningProgress(userId, exercise, correct) {
+  return request('/learning/progress', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, exercise, correct }),
+  });
+}

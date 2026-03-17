@@ -1,3 +1,5 @@
+import jsPDF from 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm';
+
 export const DEFAULT_HISTORY = [
   {
     id: 'session-1',
@@ -110,6 +112,64 @@ function Bar({ heightPct, label, colorClass, title }) {
 }
 
 export default function History({ sessions = DEFAULT_HISTORY, expandedId, onToggleExpanded }) {
+  const handleExport = () => {
+    const doc = new jsPDF();
+
+    // Header
+    doc.setFillColor(46, 64, 54); // moss green
+    doc.rect(0, 0, 210, 25, 'F');
+    doc.setTextColor(242, 240, 233); // cream
+    doc.setFontSize(16);
+    doc.text('Neuroread — Session Report', 14, 16);
+    doc.setFontSize(9);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 150, 16);
+
+    // User info
+    doc.setTextColor(26, 26, 26);
+    doc.setFontSize(11);
+    doc.text(`User ID: ${document.getElementById('user-id-input')?.value || 'demo-user-001'}`, 14, 35);
+
+    // Session rows — read directly from the DOM accordion rows
+    let y = 50;
+    document.querySelectorAll('.history-row').forEach((row, i) => {
+      const title = row.querySelector('.font-medium.text-sm')?.innerText || `Session ${i + 1}`;
+      const date = row.querySelector('.text-charcoal\\/40')?.innerText || '';
+      const scoreEl = row.querySelectorAll('strong');
+      const score = scoreEl[0]?.innerText || '—';
+      const difficulty = scoreEl[1]?.innerText || '—';
+      const desc = row.querySelector('.history-row-body p')?.innerText || '';
+
+      // Alternating row background
+      if (i % 2 === 0) {
+        doc.setFillColor(242, 240, 233);
+        doc.rect(10, y - 5, 190, 22, 'F');
+      }
+
+      doc.setFontSize(10);
+      doc.setTextColor(26, 26, 26);
+      doc.text(`${title}  ${date}`, 14, y);
+      doc.setFontSize(9);
+      doc.setTextColor(80, 80, 80);
+      doc.text(`Score: ${score}   Difficulty: ${difficulty}`, 14, y + 7);
+      if (desc) doc.text(doc.splitTextToSize(desc, 180)[0], 14, y + 13);
+
+      y += 26;
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+    });
+
+    // Footer
+    doc.setFillColor(46, 64, 54);
+    doc.rect(0, 285, 210, 12, 'F');
+    doc.setTextColor(242, 240, 233);
+    doc.setFontSize(8);
+    doc.text('Neuroread — Reading Accessibility Platform', 14, 293);
+
+    doc.save('neuroread-session-report.pdf');
+  };
+
   return (
     <section id="history" className="py-24 bg-cream relative z-20 border-t border-moss/8">
       <div className="max-w-5xl mx-auto px-6">
@@ -120,6 +180,13 @@ export default function History({ sessions = DEFAULT_HISTORY, expandedId, onTogg
             <p className="text-charcoal/50 text-sm mt-2">Past simplification sessions and cognitive improvement over time.</p>
           </div>
           <div className="flex items-center gap-3 flex-wrap mt-2">
+            <button
+              onClick={handleExport}
+              className="export-btn flex items-center gap-2 bg-moss text-cream rounded-full px-5 py-2.5 text-xs font-medium hover:scale-105 transition-transform shadow-lg shadow-moss/20"
+            >
+              <span className="iconify" data-icon="solar:download-linear" />
+              Export Report
+            </button>
             <div className="flex items-center gap-2 bg-white border border-moss/10 rounded-full px-4 py-2 text-xs">
               <span className="w-2 h-2 rounded-full bg-moss" />
               <span className="text-charcoal/60">{sessions.length} sessions</span>

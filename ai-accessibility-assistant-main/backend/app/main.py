@@ -9,6 +9,7 @@ import os
 from app.database import Base, engine
 from app.models.user import UserProfile
 from app.models.reading import ReadingSession, AnalyticsCache
+from app.services.learning.progress_tracker import LearningProgress  # auto-create table
 
 app = FastAPI(title="NeuroAdapt AI Engine")
 
@@ -140,6 +141,28 @@ app.include_router(learning_spelling_router)
 
 from app.routes.learning.comprehension import router as learning_comprehension_router
 app.include_router(learning_comprehension_router)
+
+# New dyslexia-focused learning routes
+from app.routes.learning.flashcards import router as learning_flashcards_router
+app.include_router(learning_flashcards_router)
+
+from app.routes.learning.sound_match import router as learning_sound_match_router
+app.include_router(learning_sound_match_router)
+
+from app.routes.learning.build_word import router as learning_build_word_router
+app.include_router(learning_build_word_router)
+
+from app.routes.learning.rhyme import router as learning_rhyme_router
+app.include_router(learning_rhyme_router)
+
+from app.routes.learning.picture_match import router as learning_picture_match_router
+app.include_router(learning_picture_match_router)
+
+from app.routes.learning.lesson import router as learning_lesson_router
+app.include_router(learning_lesson_router)
+
+from app.routes.learning.learning_progress import router as learning_progress_router
+app.include_router(learning_progress_router)
 
 from app.routes.personalization import router as personalization_router
 app.include_router(personalization_router)
