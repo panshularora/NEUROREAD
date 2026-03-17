@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8001';
+export const BASE_URL = 'http://localhost:8002';
 
 function getStoredUserId() {
   return localStorage.getItem('user_id') || '';
@@ -113,12 +113,16 @@ export async function askTutor(text, question, mode = 'explain') {
   });
 }
 
-export async function generateTTS(text) {
-  return request('/assistive/tts', {
+export async function fetchTTSAudio(text) {
+  const res = await fetch(`${BASE_URL}/assistive/tts`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text }),
   });
+  if (!res.ok) {
+    throw new Error(`TTS failed: ${res.statusText}`);
+  }
+  return await res.blob();
 }
 
 export async function getDashboard(userId) {
@@ -258,5 +262,13 @@ export async function updateLearningProgress(userId, exercise, correct) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ user_id: userId, exercise, correct }),
+  });
+}
+
+export async function checkAnswer(gameType, userAnswer, correctAnswer, gameContext = null) {
+  return request('/learning/check-answer', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ gameType, userAnswer, correctAnswer, gameContext }),
   });
 }

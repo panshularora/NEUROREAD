@@ -161,6 +161,9 @@ app.include_router(learning_picture_match_router)
 from app.routes.learning.lesson import router as learning_lesson_router
 app.include_router(learning_lesson_router)
 
+from app.routes.learning.check_answer import router as learning_check_answer_router
+app.include_router(learning_check_answer_router)
+
 from app.routes.learning.learning_progress import router as learning_progress_router
 app.include_router(learning_progress_router)
 

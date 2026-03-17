@@ -94,12 +94,24 @@ def get_sound_match(sound: str) -> Dict[str, object]:
     options = distractors + [correct]
     random.shuffle(options)
 
+    prompt = f"Which word starts with the /{sound}/ sound?"
+    
+    from app.services.learning.audio_helper import get_audio_url
+
+    option_details = [
+        {"word": opt, "audioUrl": get_audio_url(opt)}
+        for opt in options
+    ]
+
     return {
         "status": "success",
         "data": {
             "sound": sound,
-            "prompt": f"Which word starts with the /{sound}/ sound?",
+            "soundAudioUrl": get_audio_url(sound, slow=True),
+            "prompt": prompt,
+            "promptAudioUrl": get_audio_url(prompt),
             "options": options,
+            "optionDetails": option_details,
             "correct": correct,
         },
         "meta": {"difficulty": "easy", "level": 1},

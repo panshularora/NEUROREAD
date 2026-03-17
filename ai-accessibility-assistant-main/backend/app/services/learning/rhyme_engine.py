@@ -102,12 +102,24 @@ def get_rhyme(word: str) -> Dict[str, object]:
     options = distractors + [correct]
     random.shuffle(options)
 
+    prompt = f"Which word rhymes with '{word}'?"
+    
+    from app.services.learning.audio_helper import get_audio_url
+
+    option_details = [
+        {"word": opt, "audioUrl": get_audio_url(opt)}
+        for opt in options
+    ]
+
     return {
         "status": "success",
         "data": {
             "word": word,
-            "prompt": f"Which word rhymes with '{word}'?",
+            "wordAudioUrl": get_audio_url(word),
+            "prompt": prompt,
+            "promptAudioUrl": get_audio_url(prompt),
             "options": options,
+            "optionDetails": option_details,
             "correct": correct,
             "rhymeFamily": ending,
         },

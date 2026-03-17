@@ -11,19 +11,27 @@ class TTSRequest(BaseModel):
     slow: bool = False
 
 
+from io import BytesIO
+from fastapi.responses import StreamingResponse
+
 @router.post("/tts")
 def generate_tts(request: TTSRequest):
     try:
-        result = generate_speech_audio(request.text, slow=request.slow)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except RuntimeError as e:
-        raise HTTPException(status_code=503, detail=str(e))
+        if not request.text or request.text.isspace():
+            raise HTTPException(status_code=400, detail="Text is required for TTS.")
+            
+        from gtts import gTTS
+        tts = gTTS(text=request.text, lang="en", slow=request.slow)
+        
+        mp3_fp = BytesIO()
+        tts.write_to_fp(mp3_fp)
+        mp3_fp.seek(0)
+        
+        return StreamingResponse(mp3_fp, media_type="audio/mpeg")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    return {"audio_url": result.audio_url, "filename": result.filename}
 
-
-# New path (keeps legacy `/tts` working too)
 @router.post("/assistive/tts")
 def generate_tts_assistive(request: TTSRequest):
     return generate_tts(request)

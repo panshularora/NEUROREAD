@@ -76,18 +76,24 @@ def get_picture_match(word: str) -> Dict[str, object]:
     random.shuffle(options)
 
     # Build option objects with emojis
+    from app.services.learning.audio_helper import get_audio_url
     option_data = []
     for opt in options:
         opt_info = _WORD_DATA.get(opt)
         option_data.append({
             "word": opt,
             "emoji": opt_info["emoji"] if opt_info else "❓",
+            "audioUrl": get_audio_url(opt),
         })
+
+    prompt = f"Which picture shows a {word}?"
 
     return {
         "status": "success",
         "data": {
-            "prompt": f"Which picture shows a {word}?",
+            "wordAudioUrl": get_audio_url(word),
+            "prompt": prompt,
+            "promptAudioUrl": get_audio_url(prompt),
             "targetEmoji": emoji,
             "options": options,
             "optionDetails": option_data,

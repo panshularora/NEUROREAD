@@ -11,8 +11,10 @@ import {
   getLearningProgress,
   updateLearningProgress,
   ensureUserId,
+  checkAnswer,
 } from '../services/api';
 import LearningModal from './LearningModal';
+import AudioButton from './AudioButton';
 
 /* ──────────────── tiny helpers ──────────────── */
 const LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
@@ -218,8 +220,13 @@ function PhonicsModal({ open, onClose, userId }) {
                   <div className="animate-pulse text-clay/40 text-xl">Loading…</div>
                 ) : flashcard ? (
                   <>
-                    <span className="text-8xl font-bold text-clay mb-2">{flashcard.letter || LETTERS[letterIdx].toUpperCase()}</span>
-                    <span className="text-lg text-charcoal/60 mb-1">{flashcard.examples?.[0] || ''}</span>
+                    <div className="relative">
+                      <span className="text-8xl font-bold text-clay mb-2 block">{flashcard.letter || LETTERS[letterIdx].toUpperCase()}</span>
+                      <div className="absolute -top-4 -right-10">
+                        <AudioButton text={flashcard.letter || LETTERS[letterIdx].toUpperCase()} autoPlay={true} className="bg-clay/10 text-clay hover:bg-clay hover:text-white" />
+                      </div>
+                    </div>
+                    <span className="text-lg text-charcoal/60 mb-1">{flashcard.exampleDetails?.[0]?.word || flashcard.examples?.[0] || ''}</span>
                     <p className="mt-6 text-[10px] text-charcoal/30 uppercase tracking-widest">Click to flip</p>
                   </>
                 ) : null}
@@ -228,11 +235,16 @@ function PhonicsModal({ open, onClose, userId }) {
               <div className="absolute inset-0 bg-clay rounded-3xl border-2 border-clay shadow-xl flex flex-col items-center justify-center p-6 [backface-visibility:hidden] [transform:rotateY(180deg)]">
                 {flashcard && (
                   <>
-                    <span className="text-3xl font-medium text-white mb-3">{flashcard.sound}</span>
-                    <p className="text-white/80 text-center text-sm mb-4">{flashcard.mnemonic}</p>
-                    <div className="flex flex-wrap gap-2 justify-center">
-                      {flashcard.examples?.map((ex) => (
-                        <span key={ex} className="px-3 py-1 rounded-full bg-white/20 text-white text-xs">{ex}</span>
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-3xl font-medium text-white">{flashcard.sound}</span>
+                      <AudioButton text={flashcard.sound} className="bg-white/20 text-white hover:bg-white hover:text-clay w-8 h-8" />
+                    </div>
+                    <p className="text-white/80 text-center text-sm mb-6">{flashcard.mnemonic}</p>
+                    <div className="flex flex-col gap-2 w-full px-4">
+                      {(flashcard.exampleDetails || flashcard.examples?.map(word => ({ word })) || []).map((ex) => (
+                        <div key={ex.word} className="flex items-center justify-between bg-white/10 rounded-xl px-4 py-2" onClick={(e) => e.stopPropagation()}>
+                          <span className="text-white font-medium">{ex.word}</span>
+                        </div>
                       ))}
                     </div>
                   </>
@@ -327,11 +339,18 @@ function GamesModal({ open, onClose, userId }) {
 
   const handleAnswer = async (answer, correctAnswer) => {
     setSelected(answer);
-    const isCorrect = answer === correctAnswer;
-    setFeedback(isCorrect ? 'correct' : 'wrong');
+    
     try {
-      await updateLearningProgress(userId, activeGame, isCorrect);
-    } catch { /* best effort */ }
+      // Call new smart feedback endpoint
+      const res = await checkAnswer(activeGame, answer, correctAnswer, gameData);
+      setFeedback(res); // Now contains { status, is_correct, feedback, explanation }
+      await updateLearningProgress(userId, activeGame, res.is_correct);
+    } catch {
+      // Fallback
+      const isCorrect = answer === correctAnswer;
+      setFeedback({ is_correct: isCorrect, feedback: isCorrect ? 'Correct!' : 'Try again.', explanation: '' });
+      await updateLearningProgress(userId, activeGame, isCorrect).catch(() => {});
+    }
   };
 
   const nextRound = () => startGame(activeGame);
@@ -373,18 +392,22 @@ function GamesModal({ open, onClose, userId }) {
         ) : gameData && activeGame === 'word_builder' ? (
           /* ── Word Builder ── */
           <WordBuilderGame data={gameData} onComplete={(correct) => {
-            setFeedback(correct ? 'correct' : 'wrong');
-            updateLearningProgress(userId, 'word_builder', correct).catch(() => {});
+            handleAnswer(correct ? data.word : built.join(''), data.word);
           }} feedback={feedback} onNext={nextRound} />
         ) : gameData ? (
           /* ── Multiple Choice Games (sound, rhyme, picture) ── */
           <div className="space-y-6">
             {/* Prompt */}
-            <div className="text-center">
+            <div className="text-center relative">
               {activeGame === 'picture_match' && gameData.targetEmoji && (
                 <span className="text-7xl block mb-4">{gameData.targetEmoji}</span>
               )}
-              <p className="text-xl font-medium text-charcoal">{gameData.prompt || `Find the right answer!`}</p>
+              {activeGame === 'sound_match' && gameData.sound && (
+                 <div className="flex justify-center mb-4"><AudioButton text={gameData.sound} autoPlay={true} className="bg-blue-100 text-blue-500 hover:bg-blue-500 hover:text-white w-12 h-12" /></div>
+              )}
+               <div className="flex items-center justify-center gap-3">
+                 <p className="text-xl font-medium text-charcoal">{gameData.prompt || `Find the right answer!`}</p>
+               </div>
             </div>
 
             {/* Options */}
@@ -392,21 +415,23 @@ function GamesModal({ open, onClose, userId }) {
               {(gameData.options || []).map((opt) => {
                 const isCorrect = opt === gameData.correct;
                 const isSelected = opt === selected;
-                let cls = 'text-left px-6 py-4 rounded-2xl border transition-all font-medium ';
+                let cls = 'text-left px-6 py-4 rounded-2xl border transition-all font-medium flex items-center justify-between ';
                 if (!feedback) cls += 'border-charcoal/10 hover:bg-clay/5 hover:border-clay/30 text-charcoal/70 cursor-pointer';
                 else if (isSelected && isCorrect) cls += 'bg-green-100 border-green-400 text-green-800';
                 else if (isSelected && !isCorrect) cls += 'bg-red-100 border-red-400 text-red-800';
                 else if (isCorrect && feedback) cls += 'bg-green-50 border-green-300 text-green-700';
-                else cls += 'border-charcoal/10 text-charcoal/40';
+                else cls += 'border-charcoal/10 text-charcoal/40 opacity-50';
 
+                const optionDetails = gameData.optionDetails?.find(o => o.word === opt);
+                
                 return (
                   <button key={opt} className={cls} disabled={!!feedback} onClick={() => handleAnswer(opt, gameData.correct)}>
                     {activeGame === 'picture_match' ? (
                       <span className="flex items-center gap-3">
-                        <span className="text-2xl">{gameData.optionDetails?.find(o => o.word === opt)?.emoji || '❓'}</span>
+                        <span className="text-2xl">{optionDetails?.emoji || '❓'}</span>
                         <span>{opt}</span>
                       </span>
-                    ) : opt}
+                    ) : <span>{opt}</span>}
                   </button>
                 );
               })}
@@ -414,11 +439,14 @@ function GamesModal({ open, onClose, userId }) {
 
             {/* Feedback */}
             {feedback && (
-              <div className="text-center space-y-4 animate-in fade-in duration-300">
-                <p className={`text-lg font-bold ${feedback === 'correct' ? 'text-green-600' : 'text-red-500'}`}>
-                  {feedback === 'correct' ? '🎉 Correct!' : `❌ The answer was "${gameData.correct}"`}
+              <div className="text-center space-y-4 animate-in fade-in duration-300 p-6 bg-white/50 rounded-2xl border border-charcoal/10">
+                <p className={`text-xl font-bold ${feedback.is_correct ? 'text-green-600' : 'text-red-500'}`}>
+                  {feedback.feedback}
                 </p>
-                <button onClick={nextRound} className="px-8 py-3 rounded-2xl bg-clay text-white font-medium hover:brightness-110 transition-all">
+                {feedback.explanation && (
+                  <p className="text-charcoal/70">{feedback.explanation}</p>
+                )}
+                <button onClick={nextRound} className="px-8 py-3 rounded-2xl bg-clay text-white font-medium hover:brightness-110 transition-all mt-2">
                   Next Round →
                 </button>
               </div>
@@ -466,14 +494,26 @@ function WordBuilderGame({ data, onComplete, feedback, onNext }) {
 
   return (
     <div className="space-y-8">
-      <div className="text-center">
+      <div className="text-center relative">
         <p className="text-sm text-charcoal/50 mb-2">Arrange the letters to build the word</p>
-        {data.hint && <p className="text-clay text-sm font-medium">{data.hint}</p>}
-        <div className="flex gap-1 justify-center mt-2">
-          {(data.phonemes || []).map((p, i) => (
-            <span key={i} className="text-xs text-charcoal/30">/{p}/</span>
-          ))}
+        <div className="flex items-center justify-center gap-2 mb-2">
+           {data.hint && <p className="text-clay text-sm font-medium">{data.hint}</p>}
         </div>
+        
+        <div className="flex gap-2 justify-center mt-2">
+          {(data.phonemes || []).map((p, i) => {
+             return (
+               <div key={i} className="flex flex-col items-center">
+                 <span className="text-xs text-charcoal/40 font-mono bg-charcoal/5 px-2 py-1 rounded">/{p}/</span>
+               </div>
+             );
+          })}
+        </div>
+        {data.word && (
+          <div className="absolute top-0 right-0">
+             <AudioButton text={data.word} className="bg-clay/10 text-clay" />
+          </div>
+        )}
       </div>
 
       {/* Built slots */}
@@ -484,8 +524,8 @@ function WordBuilderGame({ data, onComplete, feedback, onNext }) {
             onClick={() => built[i] && removeLetter(i)}
             className={`w-14 h-16 rounded-xl border-2 flex items-center justify-center text-2xl font-bold transition-all cursor-pointer ${
               built[i]
-                ? feedback === 'correct' ? 'bg-green-100 border-green-400 text-green-700'
-                  : feedback === 'wrong' ? 'bg-red-100 border-red-400 text-red-700'
+                ? feedback?.is_correct ? 'bg-green-100 border-green-400 text-green-700'
+                  : feedback && !feedback.is_correct ? 'bg-red-100 border-red-400 text-red-700'
                   : 'bg-white border-clay/30 text-charcoal shadow-sm hover:border-clay'
                 : 'bg-charcoal/5 border-dashed border-charcoal/15'
             }`}
@@ -510,11 +550,14 @@ function WordBuilderGame({ data, onComplete, feedback, onNext }) {
       </div>
 
       {feedback && (
-        <div className="text-center space-y-4 animate-in fade-in duration-300">
-          <p className={`text-lg font-bold ${feedback === 'correct' ? 'text-green-600' : 'text-red-500'}`}>
-            {feedback === 'correct' ? '🎉 Correct!' : `❌ The word was "${data.word}"`}
+        <div className="text-center space-y-4 animate-in fade-in duration-300 p-6 bg-white/50 rounded-2xl border border-charcoal/10">
+          <p className={`text-xl font-bold ${feedback.is_correct ? 'text-green-600' : 'text-red-500'}`}>
+            {feedback.feedback}
           </p>
-          <button onClick={onNext} className="px-8 py-3 rounded-2xl bg-clay text-white font-medium hover:brightness-110 transition-all">
+          {feedback.explanation && (
+            <p className="text-charcoal/70">{feedback.explanation}</p>
+          )}
+          <button onClick={onNext} className="px-8 py-3 rounded-2xl bg-clay text-white font-medium hover:brightness-110 transition-all mt-2">
             Next Word →
           </button>
         </div>

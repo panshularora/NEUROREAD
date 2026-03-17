@@ -88,15 +88,25 @@ def get_flashcard(letter: str) -> Dict[str, object]:
     # Determine letter index for level hint
     letter_index = ord(letter) - ord("a") + 1
 
+    from app.services.learning.audio_helper import get_audio_url
+    
+    # Generate examples with audio
+    examples_with_audio = [
+        {"word": ex, "audioUrl": get_audio_url(ex)}
+        for ex in examples
+    ]
+
     return {
         "status": "success",
         "data": {
             "letter": letter.upper(),
             "letterLower": letter,
             "sound": sound,
-            "examples": examples,
+            "examples": examples, # kept for backward compat
+            "exampleDetails": examples_with_audio,
             "mnemonic": mnemonic,
-            "audioUrl": None,  # placeholder for future TTS integration
+            "audioUrl": get_audio_url(letter),
+            "soundAudioUrl": get_audio_url(sound, slow=True) if sound != "unknown" else None,
         },
         "meta": {
             "difficulty": "easy" if letter_index <= 10 else "medium" if letter_index <= 20 else "hard",

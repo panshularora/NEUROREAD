@@ -79,14 +79,25 @@ def build_word(word: str) -> Dict[str, object]:
 
     difficulty = "easy" if len(word) <= 3 else "medium" if len(word) <= 5 else "hard"
 
+    hint_text = f"Starts with '{word[0].upper()}'"
+    from app.services.learning.audio_helper import get_audio_url
+    
+    phoneme_details = [
+        {"sound": p, "audioUrl": get_audio_url(p, slow=True)}
+        for p in phonemes
+    ]
+
     return {
         "status": "success",
         "data": {
             "word": word,
+            "wordAudioUrl": get_audio_url(word),
             "phonemes": phonemes,
+            "phonemeDetails": phoneme_details,
             "letters": shuffled,
             "letterCount": len(letters),
-            "hint": f"Starts with '{word[0].upper()}'",
+            "hint": hint_text,
+            "hintAudioUrl": get_audio_url(hint_text),
         },
         "meta": {"difficulty": difficulty, "level": 1},
     }

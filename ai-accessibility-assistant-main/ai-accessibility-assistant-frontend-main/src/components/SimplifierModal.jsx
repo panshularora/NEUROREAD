@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { rewriteText, generateVocabCard, askTutor, generateTTS } from '../services/api';
+import { rewriteText, generateVocabCard, askTutor, fetchTTSAudio } from '../services/api';
 import { useAsync } from '../hooks/useAsync';
 import InteractiveReader from './reading/InteractiveReader';
 import CompanionAvatar from './reading/CompanionAvatar';
@@ -37,7 +37,7 @@ export default function SimplifierModal({
   const rewriteAsync = useAsync(rewriteText, { retries: 1 });
   const vocabAsync = useAsync(generateVocabCard, { retries: 1 });
   const tutorAsync = useAsync(askTutor, { retries: 0 });
-  const ttsAsync = useAsync(generateTTS, { retries: 0 });
+  const ttsAsync = useAsync(fetchTTSAudio, { retries: 0 });
 
   useEffect(() => {
     if (!open) return;
@@ -83,9 +83,9 @@ export default function SimplifierModal({
     let cancelled = false;
     (async () => {
       try {
-        const res = await ttsAsync.run(txt);
+        const blob = await ttsAsync.run(txt);
         if (cancelled) return;
-        const url = res?.audio_url ? `http://localhost:8001${res.audio_url}` : '';
+        const url = URL.createObjectURL(blob);
         setTtsUrl(url);
       } catch {
         if (!cancelled) setTtsUrl('');
