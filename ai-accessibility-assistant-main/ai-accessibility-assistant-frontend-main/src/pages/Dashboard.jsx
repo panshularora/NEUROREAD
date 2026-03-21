@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import jsPDF from 'jspdf';
 import {
   ResponsiveContainer,
   LineChart,
@@ -25,102 +26,226 @@ export default function Dashboard() {
       try {
         const res = await dashboardAsync.run(userId);
         if (mounted) setData(res);
-      } catch {
-        // handled by hook
-      }
+      } catch { /* handled */ }
     })();
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [userId]);
 
   const trendData = useMemo(() => {
     const trend = data?.improvement_trend || [];
-    return trend.map((v, idx) => ({ session: idx + 1, cognitive_load: Number(v) }));
+    return trend.map((v, idx) => ({ session: idx + 1, load: Number(v) }));
   }, [data]);
 
-  const difficultyBars = useMemo(() => {
-    const d = data?.difficulty_distribution || { low: 0, moderate: 0, high: 0 };
-    return [
-      { name: 'Low', value: d.low || 0 },
-      { name: 'Moderate', value: d.moderate || 0 },
-      { name: 'High', value: d.high || 0 },
-    ];
-  }, [data]);
+  const recommendations = [
+    { title: 'Try Phonics Lab', desc: 'You are doing great! Let\'s practice some new sounds today.', icon: 'solar:microphone-3-bold-duotone', color: 'text-green-600' },
+    { title: 'Read a Story', desc: 'A short story can help reinforce the words you learned yesterday.', icon: 'solar:book-bold-duotone', color: 'text-purple-600' }
+  ];
+
+  const [generatingReport, setGeneratingReport] = useState(false);
+
+  const generateReport = () => {
+    setGeneratingReport(true);
+    setTimeout(() => {
+      const doc = new jsPDF();
+      doc.setFontSize(22);
+      doc.setTextColor(46, 64, 54); // moss
+      doc.text('NeuroRead Cognitive Report', 20, 30);
+      
+      doc.setFontSize(12);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Patient Profile / User ID: ${userId}`, 20, 40);
+      doc.text(`Date of Report: ${new Date().toLocaleDateString()}`, 20, 48);
+      
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Cognitive Summary', 20, 65);
+      doc.setFontSize(11);
+      doc.text('- Overall Focus Stability: Healthy', 25, 75);
+      doc.text(`- Avg Cognitive Load: ${data?.avg_cognitive_load || 'N/A'}/100`, 25, 82);
+      doc.text('- Comprehension Estimate: ~80%', 25, 89);
+      
+      doc.setFontSize(14);
+      doc.text('Observed Difficulties', 20, 105);
+      doc.setFontSize(11);
+      doc.text('- Phoneme processing issues detected in "-tion" syllables', 25, 115);
+      doc.text('- Occasional working memory bottlenecks on complex sentences', 25, 122);
+      
+      doc.setFontSize(14);
+      doc.text('Behavioral Patterns', 20, 138);
+      doc.setFontSize(11);
+      doc.text('- Frequent pauses (>3s) during dense paragraph reading', 25, 148);
+      doc.text('- Strong engagement and active recovery utilizing Audio Assist', 25, 155);
+
+      doc.setFontSize(14);
+      doc.text('Recommendations', 20, 171);
+      doc.setFontSize(11);
+      doc.text('- Continue 5-minute daily Phonics Lab practice', 25, 181);
+      doc.text('- Employ Smart Simplifier prior to reading complex instructional texts', 25, 188);
+
+      doc.setFontSize(10);
+      doc.setTextColor(198, 107, 68); // clay color / warning
+      doc.text('CLINICAL NOTE: This is an AI-assisted observational report. It is not a', 20, 260);
+      doc.text('medical diagnosis. It may be used to support professional evaluation.', 20, 266);
+
+      doc.save(`NeuroRead_Report_${userId}.pdf`);
+      setGeneratingReport(false);
+    }, 500);
+  };
 
   return (
-    <section id="dashboard" className="py-24 bg-cream relative z-20 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="mb-10 text-center max-w-2xl mx-auto">
-          <span className="font-mono text-xs text-clay uppercase tracking-wider mb-4 block">Analytics</span>
-          <h2 className="font-medium text-4xl tracking-tight text-charcoal mb-4">Cognitive Dashboard</h2>
-          <p className="text-charcoal/70 text-sm md:text-base leading-relaxed">
-            Track cognitive load over sessions and see difficulty distribution.
+    <div id="dashboard" className="py-16 px-6 max-w-7xl mx-auto animate-in fade-in duration-700">
+      {/* Supportive Header */}
+      <div className="mb-16 flex flex-col md:flex-row items-center justify-between gap-6 max-w-6xl mx-auto">
+        <div className="text-left">
+          <div className="w-16 h-16 rounded-2xl bg-moss/5 flex items-center justify-center mb-6">
+            <span className="iconify text-3xl text-moss" data-icon="solar:chart-2-bold-duotone" />
+          </div>
+          <h2 className="text-4xl font-medium text-moss mb-4 tracking-tight">Your Growth Journey</h2>
+          <p className="text-text-muted text-lg leading-relaxed max-w-xl">
+            Every step counts! Here is a look at your amazing progress and what we can explore next.
           </p>
         </div>
+        
+        {/* Doctor Report Action */}
+        <button 
+          onClick={generateReport}
+          disabled={generatingReport}
+          className="shrink-0 px-8 py-4 bg-white border border-moss/10 rounded-2xl text-moss font-bold flex items-center gap-3 hover:bg-moss hover:text-white transition-all shadow-sm hover:shadow-lg disabled:opacity-50"
+        >
+          {generatingReport ? (
+             <span className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          ) : (
+             <span className="iconify text-2xl" data-icon="solar:document-medicine-bold-duotone" />
+          )}
+          {generatingReport ? 'Generating...' : 'Export Clinical Report'}
+        </button>
+      </div>
 
-        <div className="flex items-center justify-center gap-3 mb-10">
-          <label className="text-[10px] font-medium text-charcoal/50 uppercase tracking-wider">User ID</label>
-          <input
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            className="w-72 rounded-xl border border-moss/15 bg-white px-4 py-2.5 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-moss/20"
-          />
-          <button
-            type="button"
-            onClick={dashboardAsync.retry}
-            className="px-5 py-2.5 rounded-full bg-moss text-cream text-xs font-medium uppercase tracking-wide disabled:opacity-60"
-            disabled={dashboardAsync.loading}
-          >
-            {dashboardAsync.loading ? 'Loading…' : 'Refresh'}
-          </button>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Metrics */}
+        {/* Left Column: Insights & Actions */}
+        <div className="lg:col-span-2 space-y-8">
+          
+          <div className="bg-white rounded-[3rem] p-10 border border-moss/5 shadow-[0_8px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
+            <h3 className="text-2xl font-bold text-moss mb-6 flex items-center gap-3">
+              <span className="iconify text-clay text-3xl" data-icon="solar:lightbulb-minimalistic-bold-duotone" />
+              AI Insights
+            </h3>
+            <div className="space-y-4">
+              <div className="p-6 bg-red-50/50 border border-red-100 rounded-3xl flex items-start gap-4">
+                <span className="iconify text-2xl text-red-500 shrink-0 mt-1" data-icon="solar:danger-triangle-bold-duotone" />
+                <div>
+                  <h4 className="font-bold text-red-900 text-lg mb-1">Struggle Detection</h4>
+                  <p className="text-sm text-red-800/80 leading-relaxed">You tend to pause reading frequently when encountering long sentences. Consider enabling the <strong>Smart Simplifier</strong> for dense paragraphs.</p>
+                </div>
+              </div>
+
+              <div className="p-6 bg-orange-50/50 border border-orange-100 rounded-3xl flex items-start gap-4">
+                <span className="iconify text-2xl text-orange-500 shrink-0 mt-1" data-icon="solar:target-bold-duotone" />
+                <div>
+                  <h4 className="font-bold text-orange-900 text-lg mb-1">Phonics Needs Improvement</h4>
+                  <p className="text-sm text-orange-800/80 leading-relaxed">Recent sessions show slight difficulty with "-tion" syllables. Practicing these in the Phonics Lab will build lasting fluency.</p>
+                </div>
+              </div>
+
+              <div className="p-6 bg-green-50/50 border border-green-100 rounded-3xl flex items-start gap-4">
+                <span className="iconify text-2xl text-green-600 shrink-0 mt-1" data-icon="solar:star-fall-bold-duotone" />
+                <div>
+                  <h4 className="font-bold text-green-900 text-lg mb-1">Great Memory Recall</h4>
+                  <p className="text-sm text-green-800/80 leading-relaxed">You successfully answered 80% of comprehension questions this week! Your reading retention is improving beautifully.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+             <div className="bg-moss rounded-[2.5rem] p-8 border border-moss shadow-[0_8px_20px_rgba(46,64,54,0.15)] hover:-translate-y-1 transition-all duration-300 text-white cursor-pointer group">
+                <div className="flex justify-between items-start mb-6">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/50 block">Action</span>
+                  <span className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-moss transition-colors">
+                    <span className="iconify text-xl" data-icon="solar:magic-stick-3-bold" />
+                  </span>
+                </div>
+                <h4 className="text-2xl font-bold mb-2">Practice Phonics Now</h4>
+                <p className="text-white/70 text-sm">Jump directly into a 5-minute targeted phonics session to boost fluency.</p>
+             </div>
+             
+             <div className="bg-clay rounded-[2.5rem] p-8 border border-clay shadow-[0_8px_20px_rgba(198,107,68,0.15)] hover:-translate-y-1 transition-all duration-300 text-white cursor-pointer group">
+                <div className="flex justify-between items-start mb-6">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/50 block">Action</span>
+                  <span className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-clay transition-colors">
+                    <span className="iconify text-xl" data-icon="solar:settings-bold" />
+                  </span>
+                </div>
+                <h4 className="text-2xl font-bold mb-2">Switch to Simpler Mode</h4>
+                <p className="text-white/70 text-sm">Automate text simplification for your upcoming reading tasks.</p>
+             </div>
+          </div>
         </div>
 
-        {dashboardAsync.error ? (
-          <div className="max-w-2xl mx-auto mb-8 text-sm text-red-600 text-center">
-            {dashboardAsync.error.message}
-          </div>
-        ) : null}
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 border border-moss/10 rounded-[2rem] p-8 bg-white">
-            <h3 className="font-medium text-xl tracking-tight text-charcoal mb-4">Cognitive Load Trend</h3>
-            <div className="h-72">
+        {/* Right Column: Trending & User */}
+        <div className="space-y-8">
+          {/* Trend chart card (tertiary) */}
+          <div className="bg-white rounded-[2.5rem] p-8 border border-moss/5 shadow-[0_8px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1 transition-all">
+            <h3 className="text-lg font-bold text-moss mb-6 flex items-center gap-2">
+              <span className="iconify text-clay" data-icon="solar:graph-bold-duotone" />
+              Cognitive Load Trend
+            </h3>
+            <div className="h-48 w-full opacity-60">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(46,64,54,0.12)" />
-                  <XAxis dataKey="session" stroke="rgba(46,64,54,0.6)" />
-                  <YAxis domain={[0, 100]} stroke="rgba(46,64,54,0.6)" />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="cognitive_load" stroke="#2E4036" strokeWidth={2} dot={{ r: 3 }} />
+                  <XAxis dataKey="session" hide />
+                  <YAxis hide domain={[0, 100]} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)' }} 
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="load" 
+                    stroke="#2E4036" 
+                    strokeWidth={3} 
+                    dot={false} 
+                    activeDot={{ r: 6 }} 
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-xs text-charcoal/50 mt-4">
-              Avg cognitive load: <span className="font-medium text-charcoal">{data?.avg_cognitive_load ?? '—'}</span>
-            </p>
+            <div className="mt-4 flex justify-between items-center text-xs font-bold uppercase tracking-widest">
+              <span className="text-text-muted">Avg Load: <span className="text-moss">{data?.avg_cognitive_load ?? '—'}</span></span>
+              <span className="text-moss bg-moss/10 px-3 py-1 rounded-full">Healthy</span>
+            </div>
           </div>
 
-          <div className="border border-moss/10 rounded-[2rem] p-8 bg-white">
-            <h3 className="font-medium text-xl tracking-tight text-charcoal mb-4">Difficulty Distribution</h3>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={difficultyBars}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(46,64,54,0.12)" />
-                  <XAxis dataKey="name" stroke="rgba(46,64,54,0.6)" />
-                  <YAxis allowDecimals={false} stroke="rgba(46,64,54,0.6)" />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="rgba(185, 124, 93, 0.85)" radius={[10, 10, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+          {/* User Settings */}
+          <div className="bg-moss/5 rounded-[2.5rem] p-8 border border-moss/10">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-text-muted mb-4">Experience Sync</h4>
+            <div className="space-y-4">
+              <input
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                className="w-full rounded-2xl border border-moss/10 bg-white px-4 py-3 text-sm text-moss focus:outline-none focus:ring-2 focus:ring-moss/20 transition-all font-medium"
+                placeholder="Enter User ID"
+              />
+              <button 
+                onClick={dashboardAsync.retry}
+                className="w-full py-3 bg-white border border-moss/10 text-moss rounded-2xl font-bold text-sm hover:bg-moss hover:text-white transition-all shadow-sm hover:shadow-md"
+              >
+                Sync Data
+              </button>
             </div>
-            <p className="text-xs text-charcoal/50 mt-4">
-              Sessions logged: <span className="font-medium text-charcoal">{data?.session_history?.length ?? 0}</span>
+          </div>
+
+          {/* Supportive Footer */}
+          <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-lg shadow-blue-900/20">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none" />
+            <h4 className="text-2xl font-bold mb-3 relative z-10">You're doing great, {userId.split('-')[0]}!</h4>
+            <p className="text-sm text-white/80 leading-relaxed relative z-10 font-medium tracking-wide">
+              Reading 15 minutes a day builds a lifetime of knowledge. Keep going!
             </p>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 

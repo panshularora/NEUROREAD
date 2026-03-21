@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://localhost:8002';
+export const BASE_URL = 'http://localhost:8001';
 
 function getStoredUserId() {
   return localStorage.getItem('user_id') || '';

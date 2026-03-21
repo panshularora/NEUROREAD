@@ -4,10 +4,12 @@ import AssistiveMode from './AssistiveMode';
 import Hero from './Hero';
 import History, { DEFAULT_HISTORY } from './History';
 import LearningMode from './LearningMode';
+import PracticeMode from './PracticeMode'; // NEW
 import Navbar from './Navbar';
 import SimplifierModal from './SimplifierModal';
 import Dashboard from '../pages/Dashboard.jsx';
 import BookBackground from './BookBackground';
+import AccessibilityMenu from './AccessibilityMenu';
 
 function safeGsap() {
   const gsap = window.gsap;
@@ -47,17 +49,13 @@ export default function App() {
   const [expandedHistoryId, setExpandedHistoryId] = useState(null);
   const [historySessions, setHistorySessions] = useState([]);
 
-  const modesRef = useRef(null);
-  const dashboardRef = useRef(null);
+  const contentRef = useRef(null);
 
   useEffect(() => {
-    // keep original HTML baseline state for history sessions (static list is rendered in History.jsx)
-    // live sessions are prepended here.
     setHistorySessions([]);
   }, []);
 
   useEffect(() => {
-    // Persist for all API calls
     setUserId(userId);
   }, [userId]);
 
@@ -73,16 +71,6 @@ export default function App() {
         { y: 50, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: 'power3.out', scrollTrigger: { trigger: '#impact', start: 'top 75%' } }
       );
-      gsap.fromTo(
-        '.number-reveal',
-        { opacity: 0, scale: 0.5, filter: 'blur(10px)' },
-        { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 1, ease: 'back.out(1.5)', scrollTrigger: { trigger: '.number-reveal', start: 'top 85%' } }
-      );
-      gsap.fromTo(
-        '.history-row',
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5, stagger: 0.07, ease: 'power2.out', scrollTrigger: { trigger: '#history', start: 'top 80%' } }
-      );
     });
 
     return () => ctx.revert();
@@ -94,60 +82,31 @@ export default function App() {
 
   const impactSection = useMemo(() => {
     return (
-      <section id="impact" className="py-32 bg-cream relative z-20 rounded-t-[3rem] -mt-10 overflow-hidden">
+      <section id="impact" className="py-24 relative z-20 rounded-t-[3rem] -mt-10 overflow-hidden bg-white/20 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-20">
-            <span className="font-mono text-xs text-moss uppercase tracking-wider block mb-3">The Mission</span>
+            <span className="font-mono text-xs text-moss uppercase tracking-wider block mb-3">Our Vision</span>
             <h2 className="md:text-5xl text-charcoal text-4xl font-medium tracking-tight max-w-2xl">
-              How It Works &amp; Community Impact
+              Calm, Structured, and Personalized Learning
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="impact-card col-span-1 md:col-span-2 border border-moss/10 rounded-[2rem] p-8 md:p-10 bg-white flex flex-col relative overflow-hidden group transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_15px_40px_-15px_rgba(46,64,54,0.15)] opacity-0">
-              <div className="flex items-center gap-4 mb-6 relative z-10">
-                <div className="w-12 h-12 rounded-full bg-cream flex items-center justify-center border border-moss/5">
-                  <span className="iconify text-xl text-moss" data-icon="solar:scanner-linear" data-inline="false" />
-                </div>
-                <h3 className="font-medium text-2xl md:text-3xl tracking-tight text-charcoal">Dynamic Adaptation</h3>
-              </div>
-              <p className="text-charcoal/70 text-base md:text-lg leading-relaxed max-w-lg relative z-10 mt-auto">
-                AI that instantly simplifies complex text and adjusts typography based on the reader's unique cognitive needs.
+            <div className="impact-card border border-moss/10 rounded-[2.5rem] p-8 md:p-10 bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-md">
+              <h3 className="font-medium text-2xl tracking-tight text-charcoal mb-4">Focus Mode</h3>
+              <p className="text-charcoal/70 text-base leading-relaxed">
+                Clean interfaces designed to reduce cognitive load and prioritize reading comprehension.
               </p>
             </div>
-            <div className="impact-card col-span-1 border border-moss/10 rounded-[2rem] p-8 md:p-10 bg-white flex flex-col relative overflow-hidden group transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_15px_40px_-15px_rgba(46,64,54,0.15)] opacity-0">
-              <div className="w-12 h-12 rounded-full bg-cream flex items-center justify-center border border-moss/5 mb-6">
-                <span className="iconify text-xl text-moss" data-icon="solar:layers-minimalistic-linear" data-inline="false" />
-              </div>
-              <h3 className="font-medium text-xl md:text-2xl tracking-tight text-charcoal mb-4">Multi-Modal Processing</h3>
-              <p className="text-charcoal/70 text-sm leading-relaxed mt-auto">
-                Seamlessly integrates Text-to-Speech, keyword extraction, and visual phonics on the fly without breaking focus.
+            <div className="impact-card border border-moss/10 rounded-[2.5rem] p-8 md:p-10 bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-md">
+              <h3 className="font-medium text-2xl tracking-tight text-charcoal mb-4">AI Tutor</h3>
+              <p className="text-charcoal/70 text-base leading-relaxed">
+                An emotionally supportive reading companion that simplifies logic on the fly.
               </p>
             </div>
-            <div className="impact-card col-span-1 border border-moss/10 rounded-[2rem] p-8 md:p-10 bg-white flex flex-col relative overflow-hidden group transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_15px_40px_-15px_rgba(46,64,54,0.15)] opacity-0">
-              <div className="number-reveal font-medium text-6xl text-moss mb-6 leading-none inline-block" style={{ filter: 'blur(10px)' }}>
-                1 in 5
-              </div>
-              <h3 className="font-medium text-xl tracking-tight text-charcoal mb-3">Dyslexia Support</h3>
-              <p className="text-charcoal/70 text-sm leading-relaxed mt-auto">
-                Empowering individuals globally with dyslexia by providing frictionless, low-stress reading environments.
-              </p>
-            </div>
-            <div className="impact-card col-span-1 border border-moss/10 rounded-[2rem] p-8 md:p-10 bg-white flex flex-col relative overflow-hidden group transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_15px_40px_-15px_rgba(46,64,54,0.15)] opacity-0">
-              <div className="w-12 h-12 rounded-full bg-cream flex items-center justify-center border border-moss/5 mb-6">
-                <span className="iconify text-xl text-clay" data-icon="solar:diploma-linear" data-inline="false" />
-              </div>
-              <h3 className="font-medium text-xl tracking-tight text-charcoal mb-3">Educational Equity</h3>
-              <p className="text-charcoal/70 text-sm leading-relaxed mt-auto">
-                Giving early learners and children the interactive phonics and spelling tools they need to build confidence.
-              </p>
-            </div>
-            <div className="impact-card col-span-1 border border-moss/10 rounded-[2rem] p-8 md:p-10 bg-white flex flex-col relative overflow-hidden group transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_15px_40px_-15px_rgba(46,64,54,0.15)] opacity-0">
-              <div className="w-12 h-12 rounded-full bg-cream flex items-center justify-center border border-moss/5 mb-6">
-                <span className="iconify text-xl text-moss" data-icon="solar:earth-linear" data-inline="false" />
-              </div>
-              <h3 className="font-medium text-xl tracking-tight text-charcoal mb-3">Universal Accessibility</h3>
-              <p className="text-charcoal/70 text-sm leading-relaxed mt-auto">
-                Democratizing access to dense legal, medical, and technical documents for the general public.
+            <div className="impact-card border border-moss/10 rounded-[2.5rem] p-8 md:p-10 bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-md">
+              <h3 className="font-medium text-2xl tracking-tight text-charcoal mb-4">Progress</h3>
+              <p className="text-charcoal/70 text-base leading-relaxed">
+                Track phonics and memory milestones with actionable daily recommendations.
               </p>
             </div>
           </div>
@@ -156,7 +115,10 @@ export default function App() {
     );
   }, []);
 
-  const setModeSafe = useCallback((nextMode) => setMode(nextMode), []);
+  const setModeSafe = useCallback((nextMode) => {
+    setMode(nextMode);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const closeSimplifier = useCallback(() => {
     setSimplifierOpen(false);
@@ -164,10 +126,7 @@ export default function App() {
   }, []);
 
   const toggleDyslexia = useCallback(() => setDyslexiaOn((v) => !v), []);
-
-  const toggleAudio = useCallback(() => {
-    setAudioOn((v) => !v);
-  }, []);
+  const toggleAudio = useCallback(() => setAudioOn((v) => !v), []);
 
   const runSimplifier = useCallback(async () => {
     const text = inputText.trim();
@@ -183,26 +142,13 @@ export default function App() {
 
     try {
       const data = await simplifyText(text, profile, userId);
-      const originalScore = Math.round(data.original_analysis?.cognitive_load_score ?? 0);
-      const simplifiedScore = Math.round(data.simplified_analysis?.cognitive_load_score ?? 0);
-      const reductionPoints = Number(data.cognitive_load_reduction ?? 0);
-      const reductionPct =
-        originalScore > 0 ? Math.max(0, Math.round((reductionPoints / originalScore) * 100)) : 0;
-
-      const readingTimeMinutes = data.original_analysis?.estimated_reading_time_minutes;
-      const readingTimeLabel = Number.isFinite(Number(readingTimeMinutes))
-        ? `${Math.max(1, Math.round(Number(readingTimeMinutes)))} min`
-        : '—';
-
-      const difficulty = originalScore >= 70 ? 'High' : originalScore >= 40 ? 'Moderate' : 'Low';
-
       const adapted = {
         simplifiedText: data.simplified_text ?? '',
-        originalScore,
-        readingTime: readingTimeLabel,
-        difficulty,
-        reduction: reductionPct,
-        intensity: simplifiedScore,
+        originalScore: Math.round(data.original_analysis?.cognitive_load_score ?? 0),
+        readingTime: `${Math.max(1, Math.round(data.original_analysis?.estimated_reading_time_minutes ?? 0))} min`,
+        difficulty: (data.original_analysis?.cognitive_load_score >= 70 ? 'High' : data.original_analysis?.cognitive_load_score >= 40 ? 'Moderate' : 'Low'),
+        reduction: data.cognitive_load_reduction ?? 0,
+        intensity: Math.round(data.simplified_analysis?.cognitive_load_score ?? 0),
         impactSummary: data.impact_summary ?? '',
         keywords: Array.isArray(data.keywords) ? data.keywords : [],
         raw: data,
@@ -211,19 +157,16 @@ export default function App() {
       setSimplifiedText(adapted.simplifiedText || '');
       setMetrics(adapted);
 
-      const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       setHistorySessions((prev) => {
-        const n = prev.length + 1;
-        const difficultyTo = nextDifficulty(adapted.difficulty);
         const live = {
           id: `live-${Date.now()}`,
-          title: `Live Session ${n}`,
-          date: dateStr,
+          title: `Focus Session ${prev.length + 1}`,
+          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
           originalScore: adapted.originalScore,
           simplifiedScore: adapted.intensity,
           reduction: adapted.reduction,
           difficultyFrom: adapted.difficulty,
-          difficultyTo,
+          difficultyTo: nextDifficulty(adapted.difficulty),
           summary: adapted.impactSummary,
           keywords: adapted.keywords,
           accent: 'clay',
@@ -232,67 +175,19 @@ export default function App() {
         return [live, ...prev];
       });
     } catch (e) {
-      setError(e?.message || 'Error: Could not reach the API. Please try again.');
-      // eslint-disable-next-line no-console
-      console.error(e);
+      setError(e?.message || 'Error reaching the API.');
     } finally {
       setLoading(false);
     }
   }, [inputText, profile, userId]);
-
-  const modesSection = (
-    <section ref={modesRef} id="modes" className="py-24 bg-cream relative z-20 overflow-hidden">
-      <div className="max-w-7xl mr-auto ml-auto pr-6 pl-6">
-        <div className="flex justify-center mb-16">
-          <div className="bg-moss/5 p-1 rounded-full inline-flex relative shadow-inner" id="mode-tabs">
-            <div
-              className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white rounded-full shadow-sm transition-transform duration-500 ease-spring"
-              id="tab-indicator"
-              style={{ transform: mode === 'assistive' ? 'translateX(0)' : 'translateX(100%)' }}
-            />
-            <button
-              id="tab-assistive"
-              type="button"
-              onClick={() => setModeSafe('assistive')}
-              className={`relative z-10 px-6 md:px-10 py-3 rounded-full text-xs md:text-sm font-medium tracking-wide transition-colors w-40 md:w-56 text-center ${
-                mode === 'assistive' ? 'text-charcoal' : 'text-charcoal/40 hover:text-charcoal/80'
-              }`}
-            >
-              Assistive Mode
-            </button>
-            <button
-              id="tab-learning"
-              type="button"
-              onClick={() => setModeSafe('learning')}
-              className={`md:px-10 md:text-sm transition-colors md:w-56 text-xs font-medium tracking-wide text-center w-40 z-10 rounded-full pt-3 pr-6 pb-3 pl-6 relative ${
-                mode === 'learning' ? 'text-charcoal' : 'text-charcoal/40 hover:text-charcoal/80'
-              }`}
-            >
-              Learning Mode
-            </button>
-          </div>
-        </div>
-
-        <div className="grid" style={{ gridTemplateColumns: '1fr', gridTemplateRows: '1fr' }}>
-          <AssistiveMode
-          active={mode === 'assistive'}
-          onOpenSimplifier={() => setSimplifierOpen(true)}
-          onRunSimplifier={runSimplifier}
-          onSetInputText={setInputText}
-        />
-          <LearningMode active={mode === 'learning'} />
-        </div>
-      </div>
-    </section>
-  );
 
   const allHistorySessions = useMemo(() => [...historySessions, ...DEFAULT_HISTORY], [historySessions]);
 
   return (
     <div className="bg-cream text-charcoal font-sans antialiased overflow-x-hidden selection:bg-moss selection:text-cream min-h-screen">
       <div className="noise-overlay" />
-      
       <BookBackground />
+      <AccessibilityMenu />
 
       <div className="relative z-10">
         <SimplifierModal
@@ -319,21 +214,34 @@ export default function App() {
           mode={mode}
           onModeChange={setModeSafe}
           onNavigate={(target) => {
-            const el = target === 'dashboard' ? dashboardRef.current : modesRef.current;
-            el?.scrollIntoView?.({ behavior: 'smooth' });
+             // Navigation is handled by mode state now
           }}
         />
-        <Hero />
-        {impactSection}
-        {modesSection}
-        <div ref={dashboardRef}>
-          <Dashboard />
-        </div>
 
-        {/* History: render live sessions first (prepend), then the original static sessions inside History component */}
-        <History sessions={allHistorySessions} expandedId={expandedHistoryId} onToggleExpanded={setExpandedHistoryId} />
+        <main ref={contentRef} className="pt-24 transition-all duration-500">
+          {mode === 'assistive' && (
+            <>
+              <Hero />
+              {impactSection}
+              <section className="py-24 bg-white/40">
+                <AssistiveMode
+                  active={true}
+                  onOpenSimplifier={() => setSimplifierOpen(true)}
+                  onRunSimplifier={runSimplifier}
+                  onSetInputText={setInputText}
+                />
+              </section>
+              <History sessions={allHistorySessions} expandedId={expandedHistoryId} onToggleExpanded={setExpandedHistoryId} />
+            </>
+          )}
+
+          {mode === 'learning' && <LearningMode active={true} />}
+          {mode === 'practice' && <PracticeMode active={true} />}
+          {mode === 'dashboard' && <Dashboard />}
+        </main>
       </div>
     </div>
   );
 }
+
 

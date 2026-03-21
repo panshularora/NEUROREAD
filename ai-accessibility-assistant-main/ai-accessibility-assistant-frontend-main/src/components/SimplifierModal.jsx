@@ -254,16 +254,45 @@ export default function SimplifierModal({
             </div>
             <p className="text-[11px] text-charcoal/40 mb-5">Used to fetch your long-term cognitive progress.</p>
 
-            <label className="text-[10px] font-medium text-charcoal/50 uppercase tracking-wider block mb-1.5">
-              Text to Simplify
-            </label>
-            <textarea
-              value={inputText}
-              onChange={(e) => onInputTextChange(e.target.value)}
-              rows={9}
-              placeholder={'Paste or type text that may be cognitively demanding...\nPress Ctrl/⌘ + Enter to simplify.'}
-              className="w-full rounded-xl border border-moss/15 bg-white px-4 py-3 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-moss/20 placeholder-charcoal/30 resize-y leading-relaxed"
-            />
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-[10px] font-medium text-charcoal/50 uppercase tracking-wider block">
+                Text to Simplify
+              </label>
+            </div>
+            <div className="relative group">
+              <textarea
+                value={inputText}
+                onChange={(e) => onInputTextChange(e.target.value)}
+                rows={9}
+                placeholder={'Paste or type text that may be cognitively demanding...\nPress Ctrl/⌘ + Enter to simplify.'}
+                className="w-full rounded-xl border border-moss/15 bg-white px-4 py-3 pb-12 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-moss/20 placeholder-charcoal/30 resize-y leading-relaxed"
+              />
+              <button 
+                type="button"
+                onClick={() => {
+                  try {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    if (SpeechRecognition) {
+                       const recognition = new SpeechRecognition();
+                       recognition.onstart = () => {};
+                       recognition.onresult = (event) => {
+                         const transcript = event.results[0][0].transcript;
+                         onInputTextChange(inputText ? inputText + ' ' + transcript : transcript);
+                       };
+                       recognition.start();
+                    } else {
+                       alert('Speech recognition is not supported in this browser.');
+                    }
+                  } catch (e) {
+                     console.error(e);
+                  }
+                }}
+                className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white shadow-sm border border-moss/10 hover:bg-clay hover:text-white hover:border-clay flex items-center justify-center text-moss transition-all group-focus-within:shadow-md"
+                title="Dictate text via microphone"
+              >
+                <span className="iconify text-xl" data-icon="solar:microphone-3-bold-duotone" />
+              </button>
+            </div>
 
             <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
               <div className="flex items-center gap-2">

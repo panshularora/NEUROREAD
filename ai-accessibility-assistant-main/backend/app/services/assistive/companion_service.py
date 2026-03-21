@@ -90,17 +90,25 @@ Return ONLY valid JSON:
             cleaned = cleaned.split("\n", 1)[1]
             cleaned = cleaned.rsplit("```", 1)[0]
         data = json.loads(cleaned)
-    except Exception:
-        data = {}
+    except Exception as e:
+        emsg = str(e).lower()
+        if "restricted" in emsg or "400" in emsg:
+            data = {"message": "The AI Companion's API key is currently restricted (Organization Restricted). Please check your Groq billing or usage limits in the .env file.", "suggestions": ["Check .env file", "Update API key"]}
+        else:
+            data = {}
 
     message = data.get("message") or "I can help. Try clicking a sentence to get an explanation, or switch to Focus mode."
     suggestions = data.get("suggestions") or []
     if not isinstance(suggestions, list):
         suggestions = [str(suggestions)]
 
+    suggestions_list = []
+    if isinstance(suggestions, list):
+        suggestions_list = [str(s).strip() for s in suggestions if str(s).strip()]
+    
     out = {
         "message": str(message),
-        "suggestions": [str(s).strip() for s in suggestions if str(s).strip()][:6],
+        "suggestions": suggestions_list[:6],
     }
     _cache_set(k, out)
     return out

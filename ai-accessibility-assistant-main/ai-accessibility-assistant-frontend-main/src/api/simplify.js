@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000/assistive/simplify';
+const API_URL = 'http://localhost:8001/assistive/simplify';
 
 function mapProfile(profile) {
   const p = (profile || '').toLowerCase();

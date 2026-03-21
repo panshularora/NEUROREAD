@@ -44,10 +44,9 @@ export default function Navbar({ mode, onModeChange, onNavigate }) {
   };
 
   const className = useMemo(() => {
-    const base =
-      'fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 rounded-full px-6 py-3 flex items-center justify-between w-[90%] max-w-5xl border';
-    if (!scrolled) return `${base} bg-transparent text-cream border-transparent`;
-    return `${base} bg-white/60 backdrop-blur-md text-moss border-moss/10`;
+    const base = 'fixed top-4 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 rounded-full px-8 py-3.5 flex items-center justify-between w-[95%] max-w-6xl border shadow-sm';
+    if (!scrolled) return `${base} bg-white/80 backdrop-blur-[12px] text-moss border-black/5`;
+    return `${base} bg-white/95 backdrop-blur-[16px] text-moss border-black/10 shadow-md translate-y-2`;
   }, [scrolled]);
 
   return (
@@ -74,7 +73,7 @@ export default function Navbar({ mode, onModeChange, onNavigate }) {
           </div>
         </button>
 
-        <div className="hidden md:flex items-center gap-8 font-medium text-xs tracking-wide uppercase">
+        <div className="hidden md:flex items-center gap-2 font-bold text-xs tracking-wider uppercase bg-moss/5 p-1 rounded-full border border-moss/10">
           <a
             href="#modes"
             onClick={(e) => {
@@ -82,8 +81,7 @@ export default function Navbar({ mode, onModeChange, onNavigate }) {
               onModeChange('assistive');
               onNavigate?.('modes');
             }}
-            className="hover:opacity-70 transition-opacity"
-            aria-current={mode === 'assistive' ? 'page' : undefined}
+            className={`transition-all duration-300 px-6 py-2.5 rounded-full hover:scale-105 ${mode === 'assistive' ? 'bg-moss text-white shadow-md' : 'text-moss/60 hover:text-moss hover:bg-moss/10'}`}
           >
             ASSIST
           </a>
@@ -94,18 +92,29 @@ export default function Navbar({ mode, onModeChange, onNavigate }) {
               onModeChange('learning');
               onNavigate?.('modes');
             }}
-            className="hover:opacity-70 transition-opacity"
-            aria-current={mode === 'learning' ? 'page' : undefined}
+            className={`transition-all duration-300 px-6 py-2.5 rounded-full hover:scale-105 ${mode === 'learning' ? 'bg-clay text-white shadow-md' : 'text-moss/60 hover:text-moss hover:bg-clay/10'}`}
           >
             LEARNING
+          </a>
+          <a
+            href="#modes"
+            onClick={(e) => {
+              e.preventDefault();
+              onModeChange('practice');
+              onNavigate?.('modes');
+            }}
+            className={`transition-all duration-300 px-6 py-2.5 rounded-full hover:scale-105 ${mode === 'practice' ? 'bg-orange-600 text-white shadow-md' : 'text-moss/60 hover:text-moss hover:bg-orange-600/10'}`}
+          >
+            PRACTICE
           </a>
           <a
             href="#dashboard"
             onClick={(e) => {
               e.preventDefault();
+              onModeChange('dashboard');
               onNavigate?.('dashboard');
             }}
-            className="hover:opacity-70 transition-opacity"
+            className={`transition-all duration-300 px-6 py-2.5 rounded-full hover:scale-105 ${mode === 'dashboard' ? 'bg-blue-600 text-white shadow-md' : 'text-moss/60 hover:text-moss hover:bg-blue-600/10'}`}
           >
             DASHBOARD
           </a>

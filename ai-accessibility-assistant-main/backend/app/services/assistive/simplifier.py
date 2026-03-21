@@ -85,8 +85,9 @@ Text:
             temperature=0.3,
         )
         content = response.choices[0].message.content or ""
-    except Exception:
+    except Exception as e:
         # If the provider is unreachable (network/DNS/timeout), fall back so the API doesn't 500.
+        print(f"LLM Fetch Error: {e}")
         return _fallback_simplify(text, level)
 
     try:

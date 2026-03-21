@@ -15,11 +15,13 @@
     "axios": "^1.13.5",
     "framer-motion": "^12.34.3",
     "gsap": "^3.14.2",
+    "jspdf": "^4.2.1",
     "lucide-react": "^0.575.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-force-graph-2d": "^1.27.4",
     "recharts": "^2.15.4",
+    "tesseract.js": "^7.0.0",
     "three": "^0.183.2"
   },
   "devDependencies": {

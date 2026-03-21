@@ -151,7 +151,7 @@ const Simplifier: React.FC<SimplifierProps> = ({ userId, onUserIdChange }) => {
                 exit={{ opacity: 0, y: 8 }}
                 transition={{ duration: 0.25, ease: 'easeOut' }}
               >
-                <AudioPlayer src={`http://127.0.0.1:8000${result.audio_file}`} />
+                <AudioPlayer src={`http://127.0.0.1:8001${result.audio_file}`} />
               </motion.div>
             )}
           </AnimatePresence>
