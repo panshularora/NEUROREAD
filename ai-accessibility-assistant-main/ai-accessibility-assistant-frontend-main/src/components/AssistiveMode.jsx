@@ -2,6 +2,12 @@ import { useState, useRef, useEffect } from 'react';
 import { uploadDocument } from '../services/api';
 import { useAsync } from '../hooks/useAsync';
 import Tesseract from 'tesseract.js';
+import { useAccessibilityStore } from '../stores/accessibilityStore';
+import { colorizeText } from '../utils/phonemeColors';
+import { speakWithSync } from '../utils/tts';
+import AccessibilityPanel from './accessibility/AccessibilityPanel';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifier, onSetInputText }) {
   const [docResult, setDocResult] = useState(null);
@@ -17,6 +23,15 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
   const [activeTab, setActiveTab] = useState('raw'); // 'raw', 'simplified', 'audio'
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [highlightMode, setHighlightMode] = useState(false);
+
+  // Accessibility additions
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [difficultyResult, setDifficultyResult] = useState(null);
+  const [checkingDifficulty, setCheckingDifficulty] = useState(false);
+  const [highlightedCharRange, setHighlightedCharRange] = useState(null);
+  const [simplifiedText, setSimplifiedText] = useState('');
+  const ttsControllerRef = useRef(null);
+  const accessibility = useAccessibilityStore();
 
   // Web Speech API
   const speakText = (text) => {
@@ -34,6 +49,55 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
   
   const pauseSpeech = () => { window.speechSynthesis.pause(); setIsSpeaking(false); };
   const stopSpeech = () => { window.speechSynthesis.cancel(); setIsSpeaking(false); };
+
+  // Difficulty check
+  const checkDifficulty = async (textToCheck) => {
+    const text = textToCheck || simplifiedText;
+    if (!text || !text.trim()) return;
+    setCheckingDifficulty(true);
+    try {
+      const res = await fetch(`${API_URL}/assistive/difficulty-check`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text.trim(), user_ability: 0.0 }),
+      });
+      const data = await res.json();
+      setDifficultyResult(data);
+    } catch (err) {
+      console.error('Difficulty check failed:', err);
+    } finally {
+      setCheckingDifficulty(false);
+    }
+  };
+
+  // TTS with word-level sync
+  const startReadingAloud = (text) => {
+    if (ttsControllerRef.current) ttsControllerRef.current.stop();
+    setHighlightedCharRange(null);
+
+    const words = text.split(' ');
+    let charPos = 0;
+    const wordOffsets = words.map(w => {
+      const start = charPos;
+      charPos += w.length + 1;
+      return { start, end: start + w.length };
+    });
+
+    const ctrl = speakWithSync(
+      text,
+      { rate: accessibility.ttsSpeed },
+      (charIndex) => {
+        const wordIdx = wordOffsets.findIndex(
+          w => charIndex >= w.start && charIndex < w.end
+        );
+        if (wordIdx >= 0) setHighlightedCharRange(wordOffsets[wordIdx]);
+      },
+      () => setHighlightedCharRange(null)
+    );
+    ttsControllerRef.current = ctrl;
+    ctrl.play();
+    setIsSpeaking(true);
+  };
 
   // Keyword Extraction (Basic NLP Logic)
   const extractKeywords = (text) => {
@@ -87,6 +151,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
     return () => {
       stopCamera();
       window.speechSynthesis.cancel();
+      if (ttsControllerRef.current) ttsControllerRef.current.stop();
     };
   }, []);
 
@@ -110,9 +175,11 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
       const result = await Tesseract.recognize(imageSource, 'eng');
       const rawText = result.data.text;
       const extractedKw = extractKeywords(rawText);
+      const simplified = "Simulated Simplified Version: " + rawText.split('. ').slice(0, 3).join('. ');
+      setSimplifiedText(simplified);
       setDocResult({
         raw_text: rawText,
-        simplified_text: "Simulated Simplified Version: " + rawText.split('. ').slice(0, 3).join('. '),
+        simplified_text: simplified,
         metrics: { cognitive_load: 'Requires Review' },
         keywords: extractedKw
       });
@@ -136,11 +203,13 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
       setOcrLoading(true);
       try {
         const res = await uploadAsync.run(file);
+        const st = res.simplified_text || "Document loaded.";
+        setSimplifiedText(st);
         setDocResult({
-          raw_text: res.simplified_text || "Document loaded.",
-          simplified_text: res.simplified_text,
+          raw_text: st,
+          simplified_text: st,
           metrics: res.metrics || { cognitive_load: 'N/A' },
-          keywords: res.keywords || extractKeywords(res.simplified_text || '')
+          keywords: res.keywords || extractKeywords(st)
         });
         setActiveTab('simplified');
       } catch (err) {
@@ -186,7 +255,35 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
       className={`col-start-1 row-start-1 transition-all duration-700 ease-spring ${
         active ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 translate-y-8 pointer-events-none z-0'
       }`}
+      style={{ position: 'relative' }}
     >
+      {/* ── Accessibility gear button ── */}
+      <button
+        id="accessibility-panel-btn"
+        onClick={() => setPanelOpen(true)}
+        title="Reading settings"
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          zIndex: 50,
+          background: 'rgba(46,64,54,0.08)',
+          border: '1px solid rgba(46,64,54,0.15)',
+          borderRadius: 12,
+          padding: '6px 12px',
+          cursor: 'pointer',
+          fontSize: 18,
+          color: '#2E4036',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          fontWeight: 500,
+        }}
+      >
+        ⚙ <span style={{ fontSize: 12, fontWeight: 600 }}>Reading Settings</span>
+      </button>
+      <AccessibilityPanel isOpen={panelOpen} onClose={() => setPanelOpen(false)} />
+
       <div className="mb-12 text-center max-w-2xl mx-auto">
         <span className="font-mono text-xs text-clay uppercase tracking-wider mb-4 block">System 01</span>
         <h2 className="font-medium text-4xl tracking-tight text-charcoal mb-4">Assistive Mode</h2>
@@ -215,6 +312,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
             </div>
           </div>
         </div>
+
         {/* Card 0 — Demo Mode */}
         <div className="md:col-span-2 bg-clay text-white rounded-[3rem] p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl shadow-clay/10 transition-all hover:scale-[1.01] group relative overflow-hidden">
           <div className="flex flex-col gap-2 relative z-10 text-left w-full">
@@ -234,6 +332,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
           <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-black/5 rounded-full blur-3xl pointer-events-none" />
         </div>
 
+        {/* Smart Simplifier card */}
         <div
           onClick={onOpenSimplifier}
           role="button"
@@ -255,12 +354,13 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
           </div>
         </div>
 
+        {/* Document Upload */}
         <div className="clickable-card border border-moss/10 rounded-[2rem] p-8 md:p-10 bg-white flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_15px_40px_-15px_rgba(46,64,54,0.15)] group relative">
           <div className="flex items-center justify-between gap-6 flex-wrap">
             <div>
               <h3 className="font-medium text-2xl tracking-tight text-charcoal mb-2">Document Upload</h3>
               <p className="text-sm text-charcoal/60 leading-relaxed max-w-2xl">
-                Upload a PDF, DOCX, or TXT. We’ll extract text, simplify it, and compute cognitive load.
+                Upload a PDF, DOCX, or TXT. We'll extract text, simplify it, and compute cognitive load.
               </p>
             </div>
             <label className="px-6 py-3 rounded-full bg-moss text-cream text-xs font-medium uppercase tracking-wide cursor-pointer hover:scale-105 transition-transform">
@@ -418,9 +518,64 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
               {activeTab === 'simplified' && (
                 <div className="bg-white border border-moss/20 shadow-inner rounded-2xl p-6 relative">
                   <span className="absolute top-4 right-4 text-[10px] font-bold text-moss/50 uppercase tracking-widest bg-moss/5 px-2 py-1 rounded">Optimized for Dyslexia</span>
-                  <div className="text-lg text-charcoal/90 leading-[2.2] font-medium tracking-[0.03em] whitespace-pre-wrap max-h-64 overflow-y-auto">
-                    {renderHighlightedText(docResult.simplified_text, docResult.keywords)}
+
+                  {/* ── Accessibility-aware simplified text rendering ── */}
+                  <div
+                    style={{
+                      fontFamily: accessibility.font === 'opendyslexic'
+                        ? 'OpenDyslexic, sans-serif' : 'inherit',
+                      fontSize: accessibility.fontSize,
+                      lineHeight: accessibility.lineHeight,
+                      letterSpacing: `${accessibility.letterSpacing}em`,
+                      wordSpacing: `${accessibility.wordSpacing}em`,
+                      maxHeight: '16rem',
+                      overflowY: 'auto',
+                    }}
+                  >
+                    {colorizeText(docResult.simplified_text || '')}
                   </div>
+
+                  {/* Difficulty check UI */}
+                  <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                    <button
+                      onClick={() => checkDifficulty(docResult.simplified_text)}
+                      disabled={checkingDifficulty}
+                      style={{
+                        fontSize: 13, padding: '6px 14px', borderRadius: 8,
+                        background: '#2d6a4f', color: '#fff', border: 'none',
+                        cursor: 'pointer', opacity: checkingDifficulty ? 0.6 : 1
+                      }}
+                    >
+                      {checkingDifficulty ? 'Checking…' : 'Check difficulty'}
+                    </button>
+                    <button
+                      onClick={() => startReadingAloud(docResult.simplified_text || '')}
+                      style={{
+                        fontSize: 13, padding: '6px 14px', borderRadius: 8,
+                        background: '#E65100', color: '#fff', border: 'none', cursor: 'pointer'
+                      }}
+                    >
+                      ▶ Read aloud
+                    </button>
+                  </div>
+
+                  {difficultyResult && (
+                    <div style={{
+                      marginTop: 10, padding: '10px 14px', borderRadius: 10,
+                      background: difficultyResult.should_simplify ? '#fff3e0' : '#e8f5e9',
+                      border: `1px solid ${difficultyResult.should_simplify ? '#ffcc80' : '#a5d6a7'}`,
+                      fontSize: 13,
+                    }}>
+                      <span style={{ fontWeight: 600 }}>{difficultyResult.grade_label}</span>
+                      {' — '}
+                      {difficultyResult.recommendation}
+                      {difficultyResult.should_simplify && (
+                        <span style={{ marginLeft: 8, color: '#e65100', fontWeight: 600 }}>
+                          → Simplification recommended
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -525,8 +680,8 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
               <button onClick={() => setHighlightMode(prev => !prev)} className={`p-4 rounded-2xl flex flex-col items-start gap-2 font-medium text-sm transition-all text-left ${highlightMode ? 'bg-orange-500/40 outline outline-2 outline-orange-400' : 'bg-white/10 hover:bg-white/20'}`}>
                 <span className="iconify text-2xl text-orange-400" data-icon="solar:highlighter-bold" /> HL Keywords {highlightMode && '(ON)'}
               </button>
-              <button onClick={() => document.querySelector('.bg-moss.text-cream.fixed.right-6.bottom-24')?.click()} className="bg-white/10 hover:bg-white/20 p-4 rounded-2xl flex flex-col items-start gap-2 font-medium text-sm transition-all text-left group">
-                <span className="iconify text-2xl text-white/50 group-hover:scale-110 transition-transform" data-icon="solar:settings-bold" /> Focus Settings
+              <button onClick={() => setPanelOpen(true)} className="bg-white/10 hover:bg-white/20 p-4 rounded-2xl flex flex-col items-start gap-2 font-medium text-sm transition-all text-left group">
+                <span className="iconify text-2xl text-white/50 group-hover:scale-110 transition-transform" data-icon="solar:settings-bold" /> Reading Settings
               </button>
             </div>
           </div>

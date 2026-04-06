@@ -57,8 +57,7 @@ async def log_requests(request, call_next):
 
 app.add_middleware(
     CORSMiddleware,
-    # Vite dev server may be opened via localhost, 127.0.0.1, or LAN IP.
-    # Use a regex so API calls don't fail due to Origin mismatch.
+    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173", "http://127.0.0.1:5174"],
     allow_origin_regex=r"^http://(localhost|127\.0\.0\.1|(\d{1,3}\.){3}\d{1,3})(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
@@ -175,3 +174,6 @@ app.include_router(personalization_difficulty_router)
 
 from app.routes.analytics import router as analytics_router
 app.include_router(analytics_router)
+
+from app.routes.assistive import router as assistive_router
+app.include_router(assistive_router, prefix="/assistive")

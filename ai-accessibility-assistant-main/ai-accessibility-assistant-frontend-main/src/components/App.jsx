@@ -10,6 +10,9 @@ import SimplifierModal from './SimplifierModal';
 import Dashboard from '../pages/Dashboard.jsx';
 import BookBackground from './BookBackground';
 import AccessibilityMenu from './AccessibilityMenu';
+import { useAccessibilityStore } from '../stores/accessibilityStore';
+import ColorOverlay from './accessibility/ColorOverlay';
+import ReadingRuler from './accessibility/ReadingRuler';
 
 function safeGsap() {
   const gsap = window.gsap;
@@ -31,6 +34,7 @@ function nextDifficulty(current) {
 }
 
 export default function App() {
+  const { font, fontSize, lineHeight, letterSpacing, wordSpacing } = useAccessibilityStore();
   const [mode, setMode] = useState('assistive');
   const [simplifierOpen, setSimplifierOpen] = useState(false);
 
@@ -184,7 +188,18 @@ export default function App() {
   const allHistorySessions = useMemo(() => [...historySessions, ...DEFAULT_HISTORY], [historySessions]);
 
   return (
-    <div className="bg-cream text-charcoal font-sans antialiased overflow-x-hidden selection:bg-moss selection:text-cream min-h-screen">
+    <div
+      className="bg-cream text-charcoal font-sans antialiased overflow-x-hidden selection:bg-moss selection:text-cream min-h-screen"
+      style={{
+        fontFamily: font === 'opendyslexic' ? 'OpenDyslexic, sans-serif' : undefined,
+        fontSize: fontSize,
+        lineHeight: lineHeight,
+        letterSpacing: `${letterSpacing}em`,
+        wordSpacing: `${wordSpacing}em`,
+      }}
+    >
+      <ColorOverlay />
+      <ReadingRuler />
       <div className="noise-overlay" />
       <BookBackground />
       <AccessibilityMenu />
