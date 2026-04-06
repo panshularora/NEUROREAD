@@ -4,15 +4,17 @@ import AssistiveMode from './AssistiveMode';
 import Hero from './Hero';
 import History, { DEFAULT_HISTORY } from './History';
 import LearningMode from './LearningMode';
-import PracticeMode from './PracticeMode'; // NEW
+import PracticeMode from './PracticeMode';
 import Navbar from './Navbar';
 import SimplifierModal from './SimplifierModal';
 import Dashboard from '../pages/Dashboard.jsx';
 import BookBackground from './BookBackground';
 import AccessibilityMenu from './AccessibilityMenu';
+import Onboarding from './Onboarding';
 import { useAccessibilityStore } from '../stores/accessibilityStore';
 import ColorOverlay from './accessibility/ColorOverlay';
 import ReadingRuler from './accessibility/ReadingRuler';
+import '../styles/accessibility.css';
 
 function safeGsap() {
   const gsap = window.gsap;
@@ -37,6 +39,11 @@ export default function App() {
   const { font, fontSize, lineHeight, letterSpacing, wordSpacing } = useAccessibilityStore();
   const [mode, setMode] = useState('assistive');
   const [simplifierOpen, setSimplifierOpen] = useState(false);
+  
+  // Onboarding gate
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => !localStorage.getItem('neuroread-onboarding-done')
+  );
 
   const [userId, setUserIdState] = useState(() => ensureUserId('demo-user-001'));
   const [profile, setProfile] = useState('Default');
@@ -191,13 +198,17 @@ export default function App() {
     <div
       className="bg-cream text-charcoal font-sans antialiased overflow-x-hidden selection:bg-moss selection:text-cream min-h-screen"
       style={{
-        fontFamily: font === 'opendyslexic' ? 'OpenDyslexic, sans-serif' : undefined,
+        fontFamily: font === 'opendyslexic' ? 'OpenDyslexic, sans-serif' : font === 'arial' ? 'Arial, sans-serif' : undefined,
         fontSize: fontSize,
         lineHeight: lineHeight,
         letterSpacing: `${letterSpacing}em`,
         wordSpacing: `${wordSpacing}em`,
       }}
     >
+      {/* First-time onboarding */}
+      {showOnboarding && (
+        <Onboarding onComplete={() => setShowOnboarding(false)} />
+      )}
       <ColorOverlay />
       <ReadingRuler />
       <div className="noise-overlay" />

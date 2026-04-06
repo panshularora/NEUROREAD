@@ -57,7 +57,14 @@ async def log_requests(request, call_next):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173", "http://127.0.0.1:5174"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174",
+    ],
     allow_origin_regex=r"^http://(localhost|127\.0\.0\.1|(\d{1,3}\.){3}\d{1,3})(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
@@ -81,6 +88,11 @@ def create_tables():
 @app.get("/")
 def root():
     return {"message": "NeuroAdapt Backend Running"}
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok", "version": "2.0"}
 
 
 # Routes
@@ -177,3 +189,17 @@ app.include_router(analytics_router)
 
 from app.routes.assistive import router as assistive_router
 app.include_router(assistive_router, prefix="/assistive")
+
+# ── New ML-wired learning endpoints ──────────────────────────────────────────
+try:
+    from app.routes.learning.learning_api import router as learning_api_router
+    app.include_router(learning_api_router)
+except Exception as e:
+    print(f"[main] WARNING: learning_api failed to load: {e}")
+
+# ── Phoneme annotation endpoint ───────────────────────────────────────────────
+try:
+    from app.routes.assistive.annotate import router as annotate_router
+    app.include_router(annotate_router)
+except Exception as e:
+    print(f"[main] WARNING: annotate route failed to load: {e}")

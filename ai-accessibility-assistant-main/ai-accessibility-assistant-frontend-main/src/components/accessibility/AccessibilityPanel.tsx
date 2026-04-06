@@ -9,8 +9,10 @@ import { useAccessibilityStore } from '../../stores/accessibilityStore'
 
 const OVERLAY_OPTIONS = [
   { key: 'none',     label: 'Off',      color: 'transparent', border: '1px solid #ccc' },
-  { key: 'yellow',   label: 'Yellow',   color: '#FFF796' },
-  { key: 'blue',     label: 'Blue',     color: '#ADD8E6' },
+  { key: 'cream',   label: 'Cream',    color: '#FFF8E7' },
+  { key: 'yellow',   label: 'Yellow',   color: '#FFFACD' },
+  { key: 'blue',     label: 'Blue',     color: '#E8F4FD' },
+  { key: 'pink',     label: 'Pink',     color: '#FCE4EC' },
   { key: 'mint',     label: 'Mint',     color: '#98FB98' },
   { key: 'rose',     label: 'Rose',     color: '#FFB6C1' },
   { key: 'lavender', label: 'Lavender', color: '#E6BEFF' },
@@ -21,6 +23,7 @@ const OVERLAY_OPTIONS = [
 const FONT_OPTIONS = [
   { key: 'system',      label: 'System font' },
   { key: 'opendyslexic', label: 'OpenDyslexic' },
+  { key: 'arial',       label: 'Arial' },
 ]
 
 interface Props {
@@ -92,7 +95,7 @@ export default function AccessibilityPanel({ isOpen, onClose }: Props) {
                 Text size — {store.fontSize}px
               </label>
               <input
-                type="range" min={16} max={28} step={1}
+                type="range" min={14} max={24} step={1}
                 value={store.fontSize}
                 onChange={e => store.setFontSize(Number(e.target.value))}
                 style={{ width: '100%' }}
@@ -193,8 +196,8 @@ export default function AccessibilityPanel({ isOpen, onClose }: Props) {
               />
             </section>
 
-            {/* Chunk size */}
-            <section>
+            {/* Reading chunks */}
+            <section style={{ marginBottom: '1.5rem' }}>
               <label style={{ fontSize: 13, color: '#666', display: 'block', marginBottom: 8 }}>
                 Reading chunks
               </label>
@@ -213,6 +216,87 @@ export default function AccessibilityPanel({ isOpen, onClose }: Props) {
                   </span>
                 </label>
               ))}
+            </section>
+
+            {/* Colored letters toggle */}
+            <section style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <label style={{ fontSize: 13, color: '#666', display: 'block' }}>b/d/p/q letter colors</label>
+                  <span style={{ fontSize: 11, color: '#999' }}>Helps distinguish similar letters</span>
+                </div>
+                <button
+                  onClick={() => store.setColoredLetters(!store.coloredLetters)}
+                  style={{
+                    padding: '4px 14px', borderRadius: 20, border: 'none',
+                    background: store.coloredLetters ? '#2d6a4f' : '#e0e0e0',
+                    color: store.coloredLetters ? '#fff' : '#555',
+                    cursor: 'pointer', fontSize: 13,
+                  }}
+                >
+                  {store.coloredLetters ? 'On' : 'Off'}
+                </button>
+              </div>
+              {store.coloredLetters && (
+                <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                  {[['b','#4A90D9'],['d','#E8734A'],['p','#9B59B6'],['q','#27AE60']].map(([letter, color]) => (
+                    <span key={letter} style={{ fontWeight: 700, color: color as string, fontSize: 16 }}>{letter}</span>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* Chunk reading toggle */}
+            <section style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <label style={{ fontSize: 13, color: '#666', display: 'block' }}>Chunk reading</label>
+                  <span style={{ fontSize: 11, color: '#999' }}>One sentence at a time</span>
+                </div>
+                <button
+                  onClick={() => store.setChunkReading(!store.chunkReading)}
+                  style={{
+                    padding: '4px 14px', borderRadius: 20, border: 'none',
+                    background: store.chunkReading ? '#2d6a4f' : '#e0e0e0',
+                    color: store.chunkReading ? '#fff' : '#555',
+                    cursor: 'pointer', fontSize: 13,
+                  }}
+                >
+                  {store.chunkReading ? 'On' : 'Off'}
+                </button>
+              </div>
+            </section>
+
+            {/* Dark mode toggle */}
+            <section style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label style={{ fontSize: 13, color: '#666' }}>Dark mode</label>
+                <button
+                  onClick={() => store.setDarkMode(!store.darkMode)}
+                  style={{
+                    padding: '4px 14px', borderRadius: 20, border: 'none',
+                    background: store.darkMode ? '#2d6a4f' : '#e0e0e0',
+                    color: store.darkMode ? '#fff' : '#555',
+                    cursor: 'pointer', fontSize: 13,
+                  }}
+                >
+                  {store.darkMode ? 'On' : 'Off'}
+                </button>
+              </div>
+            </section>
+
+            {/* Reset to defaults */}
+            <section style={{ paddingTop: '1rem', borderTop: '1px solid #f0f0f0' }}>
+              <button
+                onClick={() => store.resetToDefaults()}
+                style={{
+                  width: '100%', padding: '10px', borderRadius: 10,
+                  border: '1px solid #ddd', background: '#f9f9f9',
+                  color: '#666', cursor: 'pointer', fontSize: 13, fontWeight: 500,
+                }}
+              >
+                ↩ Reset to defaults
+              </button>
             </section>
           </motion.div>
         </>
