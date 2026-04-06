@@ -1,3 +1,5 @@
+import React from 'react'
+
 export const PHONEME_COLORS: Record<string, string> = {
   b: '#1565C0',   // deep blue — distinct from black text
   d: '#E65100',   // deep orange
@@ -10,7 +12,6 @@ export const PHONEME_COLORS: Record<string, string> = {
 /**
  * Splits a word into letter spans, applying PHONEME_COLORS
  * to confusable letters. Used in EVERY component that renders words.
- * This is the visual foundation of the dyslexia color system.
  * Research basis: implicit color-letter association reduces b/d confusion
  * faster than phonics drilling alone (Singleton & Trotter, 2005).
  */
@@ -41,11 +42,12 @@ export function colorizeWord(
  * Returns an array of React elements (one per word + space).
  */
 export function colorizeText(text: string): React.ReactElement[] {
-  return text.split(' ').flatMap((word, wi) => {
+  const words = text.split(' ')
+  return words.flatMap((word, wi) => {
     const elements: React.ReactElement[] = [
       <span key={`w-${wi}`}>{colorizeWord(word)}</span>
     ]
-    if (wi < text.split(' ').length - 1) {
+    if (wi < words.length - 1) {
       elements.push(<span key={`s-${wi}`}> </span>)
     }
     return elements

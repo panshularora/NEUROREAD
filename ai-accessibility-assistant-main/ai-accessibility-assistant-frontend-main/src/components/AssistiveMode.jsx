@@ -3,7 +3,7 @@ import { uploadDocument } from '../services/api';
 import { useAsync } from '../hooks/useAsync';
 import Tesseract from 'tesseract.js';
 import { useAccessibilityStore } from '../stores/accessibilityStore';
-import { colorizeText } from '../utils/phonemeColors';
+import { colorizeText } from '../utils/phonemeColors.tsx';
 import { speakWithSync } from '../utils/tts';
 import AccessibilityPanel from './accessibility/AccessibilityPanel';
 
