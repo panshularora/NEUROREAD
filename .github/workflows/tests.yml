@@ -1,0 +1,37 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ai-accessibility-assistant-main
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: ai-accessibility-assistant-main/backend/requirements.txt
+
+      - name: Install dependencies
+        # keybert is opt-in at runtime (NEUROREAD_USE_KEYBERT=1) and pulls in torch,
+        # so it is left out of the CI install.
+        run: |
+          python -m pip install --upgrade pip
+          grep -vi '^keybert' backend/requirements.txt > /tmp/requirements-ci.txt
+          pip install -r /tmp/requirements-ci.txt pytest
+
+      - name: Run tests
+        # No GROQ_API_KEY is set, so the simplifier test exercises the rule-based fallback.
+        run: python -m pytest tests/ -v
