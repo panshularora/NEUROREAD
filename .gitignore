@@ -1,0 +1,25 @@
+# Generated TTS audio (gTTS writes these at runtime into backend/app/static/audio/)
+**/static/audio/*.mp3
+
+# Logs and type-checker output
+*.log
+pyright_output.*
+py_pyright.txt
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Local env / data
+.env
+*.db
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
