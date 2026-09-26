@@ -111,7 +111,8 @@ export default function InteractiveReader({
             type="button"
             onClick={() => setActiveIdx((v) => Math.max(0, v - 1))}
             disabled={activeIdx <= 0 || mode === 'chunk'}
-            className="text-xs px-3 py-1 rounded-full bg-white border border-moss/15 text-charcoal/60 disabled:opacity-50"
+            className="text-sm px-3 py-1.5 rounded-full bg-white border border-line text-charcoal hover:bg-moss/10 disabled:opacity-40"
+            aria-label="Previous sentence"
           >
             Prev
           </button>
@@ -119,7 +120,8 @@ export default function InteractiveReader({
             type="button"
             onClick={() => setActiveIdx((v) => Math.min((guidedSentences?.length || 1) - 1, v + 1))}
             disabled={mode === 'chunk' || activeIdx >= (guidedSentences?.length || 1) - 1}
-            className="text-xs px-3 py-1 rounded-full bg-white border border-moss/15 text-charcoal/60 disabled:opacity-50"
+            className="text-sm px-3 py-1.5 rounded-full bg-white border border-line text-charcoal hover:bg-moss/10 disabled:opacity-40"
+            aria-label="Next sentence"
           >
             Next
           </button>

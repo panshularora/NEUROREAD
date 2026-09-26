@@ -37,13 +37,14 @@ export default function CompanionAvatar({ text }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="w-14 h-14 rounded-full bg-moss text-cream shadow-lg border border-moss/30 flex items-center justify-center hover:scale-105 transition-transform"
-        aria-label="Open reading companion"
+        aria-label="Reading companion"
+        aria-expanded={open}
       >
         <span className="iconify" data-icon="solar:chat-round-dots-linear" style={{ width: '1.4rem', height: '1.4rem' }} />
       </button>
 
       {open ? (
-        <div className="mt-3 w-[320px] rounded-3xl bg-white border border-moss/10 shadow-[0_25px_80px_-25px_rgba(0,0,0,0.35)] p-5">
+        <div className="mt-3 w-[min(320px,calc(100vw-3rem))] rounded-3xl bg-white border border-moss/10 shadow-[0_25px_80px_-25px_rgba(0,0,0,0.35)] p-5">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-medium text-charcoal">Reading Companion</h4>
             <button
