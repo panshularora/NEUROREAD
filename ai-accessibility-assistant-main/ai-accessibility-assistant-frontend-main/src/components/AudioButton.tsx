@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Square, Volume2 } from 'lucide-react';
 import { BASE_URL, fetchTTSAudio } from '../services/api';
 
 const ttsCache = new Map();
@@ -17,6 +18,11 @@ export default function AudioButton({ src, text, autoPlay = false, className = '
       setIsPlaying(false);
       return;
     }
+    if (isPlaying) {
+      window.speechSynthesis?.cancel();
+      setIsPlaying(false);
+      return;
+    }
 
     let targetUrl = src?.startsWith('/') ? `${BASE_URL}${src}` : src;
 
@@ -30,7 +36,17 @@ export default function AudioButton({ src, text, autoPlay = false, className = '
         targetUrl = ttsCache.get(text);
       } catch {
         setIsLoading(false);
-        setFailed(true);
+        // Fall back to the browser's own voice when the server can't make audio.
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.rate = 0.85;
+          utterance.onstart = () => setIsPlaying(true);
+          utterance.onend = () => setIsPlaying(false);
+          window.speechSynthesis.speak(utterance);
+        } else {
+          setFailed(true);
+        }
         return;
       }
       setIsLoading(false);
@@ -74,21 +90,18 @@ export default function AudioButton({ src, text, autoPlay = false, className = '
       }}
       type="button"
       disabled={isLoading}
-      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-        isPlaying 
-          ? 'bg-clay text-white animate-pulse' 
-          : 'bg-charcoal/5 text-charcoal/40 hover:bg-clay/10 hover:text-clay'
-      } ${isLoading ? 'opacity-50 cursor-wait' : ''} ${className}`}
-      aria-label={failed ? 'Audio unavailable, try again' : isPlaying ? 'Stop audio' : 'Play audio'}
+      className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border ${
+        isPlaying ? 'border-accent bg-accent text-white' : 'border-line bg-surface text-primary hover:bg-primary/10'
+      } ${isLoading ? 'cursor-wait opacity-60' : ''} ${className}`}
+      aria-label={failed ? 'Audio unavailable, try again' : isPlaying ? 'Stop audio' : text ? `Listen: ${text}` : 'Play audio'}
       title={failed ? 'Audio is unavailable right now' : 'Play audio'}
     >
       {isLoading ? (
-        <span className="w-4 h-4 border-2 border-charcoal/20 border-t-charcoal/60 rounded-full animate-spin" />
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+      ) : isPlaying ? (
+        <Square className="h-4 w-4" aria-hidden="true" />
       ) : (
-        <span 
-          className="iconify text-lg" 
-          data-icon={isPlaying ? 'solar:stop-circle-bold' : 'solar:volume-loud-bold-duotone'} 
-        />
+        <Volume2 className="h-5 w-5" aria-hidden="true" />
       )}
     </button>
   );
