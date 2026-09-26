@@ -4,9 +4,9 @@ from pydantic import BaseModel, Field, conint, confloat
 
 
 class SessionMetrics(BaseModel):
-    cognitive_load: confloat(ge=0, le=100) = Field(
-        ...,
-        description="Cognitive load score for the session on a 0‑100 scale.",
+    cognitive_load: Optional[confloat(ge=0, le=100)] = Field(
+        None,
+        description="Cognitive load score for the session. If None, it will be calculated.",
     )
     reading_time: confloat(gt=0) = Field(
         ...,
@@ -15,6 +15,14 @@ class SessionMetrics(BaseModel):
     difficult_words_count: conint(ge=0) = Field(
         ...,
         description="Number of difficult words encountered in the session.",
+    )
+    pauses: conint(ge=0) = Field(
+        0,
+        description="Number of pauses during the session.",
+    )
+    errors_count: conint(ge=0) = Field(
+        0,
+        description="Number of errors during the session.",
     )
 
 

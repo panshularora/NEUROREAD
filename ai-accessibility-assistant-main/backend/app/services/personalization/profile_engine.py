@@ -81,27 +81,30 @@ def _compute_profile_from_stats(
     return profile, adaptation_summary
 
 
+from app.services.analytics.session_tracker import persist_reading_session
+from app.models.user import UserProfile
+
 def update_user_reading_profile(
     payload: PersonalizationUpdateRequest,
 ) -> Tuple[UserReadingProfile, str, int]:
     """
     Persist the latest session and derive an updated reading profile.
-
-    Returns (profile, summary, total_sessions_used).
     """
+    metrics = payload.session_metrics
+    
+    # Use centralized persistence point
+    persist_reading_session(
+        user_id=payload.user_id,
+        reading_time=metrics.reading_time,
+        pauses=metrics.pauses,
+        errors=metrics.errors_count,
+        difficult_words_count=metrics.difficult_words_count,
+        cognitive_load=metrics.cognitive_load
+    )
+
     db = SessionLocal()
     try:
-        metrics = payload.session_metrics
-
-        session_row = ReadingSession(
-            user_id=payload.user_id,
-            cognitive_load=float(metrics.cognitive_load),
-            reading_time_minutes=float(metrics.reading_time),
-            difficult_words_count=int(metrics.difficult_words_count),
-        )
-        db.add(session_row)
-        db.commit()
-
+        # Aggregate stats
         agg = (
             db.query(
                 func.avg(ReadingSession.cognitive_load),
@@ -124,6 +127,23 @@ def update_user_reading_profile(
             avg_difficult_words=avg_difficult_words,
             total_sessions=total_sessions,
         )
+
+        # PERSIST TO UserProfile table
+        user_row = db.query(UserProfile).filter(UserProfile.user_id == payload.user_id).first()
+        if not user_row:
+            user_row = UserProfile(user_id=payload.user_id)
+            db.add(user_row)
+        
+        user_row.reading_speed_wpm = profile.reading_speed_wpm
+        user_row.sentence_complexity_tolerance = profile.sentence_complexity_tolerance
+        user_row.vocabulary_difficulty_tolerance = profile.vocabulary_difficulty_tolerance
+        user_row.preferred_mode = profile.preferred_mode
+        user_row.dyslexia_support_enabled = 1 if profile.dyslexia_support_enabled else 0
+        user_row.avg_cognitive_score = avg_cognitive_load
+        user_row.last_score = float(metrics.cognitive_load or avg_cognitive_load)
+        user_row.total_sessions = total_sessions
+        
+        db.commit()
 
         return profile, summary, total_sessions
     finally:

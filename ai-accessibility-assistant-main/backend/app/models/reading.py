@@ -19,6 +19,8 @@ class ReadingSession(Base):
     cognitive_load = Column(Float, nullable=False)
     reading_time_minutes = Column(Float, nullable=False)
     difficult_words_count = Column(Integer, nullable=False, default=0)
+    pauses_count = Column(Integer, nullable=False, default=0)
+    errors_count = Column(Integer, nullable=False, default=0)
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 

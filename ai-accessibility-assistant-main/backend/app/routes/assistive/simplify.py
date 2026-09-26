@@ -1,178 +1,126 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
+from typing import Optional
+import math
 
-from app.services.simplifier import simplify_text
-from app.services.cognitive_load import calculate_cognitive_load
-from app.services.user_profile import update_user_profile
-from app.services.accessibility import (
-    apply_dyslexia_formatting,
-    generate_audio_payload,
-)
+from app.services.assistive.simplifier import simplify_text as llm_simplify
 from app.services.assistive.keyword_extractor import extract_keywords
-from app.services.assistive.tts_service import generate_speech_audio
-from app.schemas.personalization import PersonalizationUpdateRequest, SessionMetrics
-from app.services.personalization.profile_engine import (
-    update_user_reading_profile,
-)
-from app.services.personalization.difficulty_predictor import predict_user_difficulty
+from app.services.cognitive_load import calculate_cognitive_load
+from app.services.analytics.session_tracker import persist_reading_session
 
 router = APIRouter()
 
 
 class SimplifyRequest(BaseModel):
     text: str
-    level: int | None = None
-    user_id: str | None = None
-    profile: str | None = "default"
-    enable_dyslexia_support: bool = True
-    enable_audio: bool = True
+    profile: Optional[str] = "default"
+    user_id: Optional[str] = None
+    enable_dyslexia_support: Optional[bool] = False
+    enable_audio: Optional[bool] = False
+    level: Optional[int] = None  # 1=very simple, 2=moderate, 3=light
 
 
-@router.post("/simplify")
-def simplify(request: SimplifyRequest):
-
-    # 1️⃣ Analyze original
-    original_analysis = calculate_cognitive_load(request.text)
-    original_score = original_analysis["cognitive_load_score"]
-
-    # 2️⃣ Auto level
-    if request.level is None:
-        if original_score < 30:
-            level = 3
-        elif original_score < 60:
-            level = 2
-        else:
-            level = 1
-    else:
-        level = request.level
-
-    # Profile override
-    if request.profile == "focus":
-        level = 1
-    elif request.profile == "easy_read":
-        level = 1
-    elif request.profile == "academic":
-        level = 3
-
-    # Personalized difficulty recommendation (best-effort, no breaking changes)
-    difficulty_prediction = None
-    if request.user_id:
-        try:
-            difficulty_prediction = predict_user_difficulty(request.user_id)
-            # If user is predicted beginner and the request didn't force a level,
-            # bias toward stronger simplification.
-            if request.level is None and difficulty_prediction.get("user_level") == "Beginner":
-                level = 1
-            elif request.level is None and difficulty_prediction.get("user_level") == "Advanced":
-                level = max(level, 3)
-        except Exception:
-            difficulty_prediction = None
-
-    # 3️⃣ Simplify
-    simplified_output = simplify_text(request.text, level)
-
-    if isinstance(simplified_output, dict):
-        simplified_text = simplified_output.get("simplified_text", "")
-    else:
-        simplified_text = simplified_output
-
-    # 4️⃣ Analyze simplified
-    simplified_analysis = calculate_cognitive_load(simplified_text)
-    simplified_score = simplified_analysis["cognitive_load_score"]
-
-    reduction = original_score - simplified_score
-
-    # 5️⃣ Overload detection
-    overload_warning = None
-    isolation_mode = False
-
+def _make_impact_summary(original_score: float, simplified_score: float, reduction: float) -> str:
     if original_score >= 70:
-        overload_warning = "This text may cause cognitive overload."
-        isolation_mode = True
+        severity = "high"
+    elif original_score >= 40:
+        severity = "moderate"
+    else:
+        severity = "low"
 
-    # 6️⃣ Dyslexia Formatting
-    dyslexia_view = None
-    if request.enable_dyslexia_support:
-        dyslexia_view = apply_dyslexia_formatting(simplified_text)
+    if reduction >= 30:
+        impact = f"Cognitive load reduced by {reduction:.0f}% — a significant improvement for readability."
+    elif reduction >= 10:
+        impact = f"Cognitive load reduced by {reduction:.0f}%, making this text more accessible."
+    else:
+        impact = "Text was already relatively accessible. Minor adjustments were applied."
 
-    # 7️⃣ Adaptive Audio Mode
-    audio_payload = None
-    if request.enable_audio:
-        audio_payload = generate_audio_payload(simplified_text)
+    if severity == "high":
+        advice = " We recommend using the AI Tutor for any remaining difficult terms."
+    elif severity == "moderate":
+        advice = " Dyslexia mode and audio playback can further support comprehension."
+    else:
+        advice = " Great work — keep reading to strengthen your comprehension."
 
-    # 8️⃣ Save progress + adaptive profile update
-    personalization_profile = None
-    if request.user_id:
-        update_user_profile(
-            user_id=request.user_id,
-            level=level,
-            score=simplified_score,
-        )
-
-        # Best-effort personalization; never break the main response.
-        try:
-            difficult_words = simplified_analysis.get("difficult_words", []) or []
-            reading_time = simplified_analysis.get(
-                "estimated_reading_time_minutes", 0.0
-            ) or 0.0
-            metrics = SessionMetrics(
-                cognitive_load=float(simplified_score),
-                reading_time=float(reading_time) if reading_time > 0 else 0.1,
-                difficult_words_count=int(len(difficult_words)),
-            )
-            personalization_request = PersonalizationUpdateRequest(
-                user_id=request.user_id,
-                session_metrics=metrics,
-            )
-            profile, summary, _ = update_user_reading_profile(
-                personalization_request
-            )
-            personalization_profile = {
-                "user_profile": profile.model_dump(),
-                "adaptation_summary": summary,
-            }
-        except Exception:
-            personalization_profile = None
-
-    impact_percentage = 0
-    if original_score > 0:
-        impact_percentage = round((reduction / original_score) * 100, 1)
+    return impact + advice
 
 
-
-    # Generate TTS only when explicitly enabled (best-effort).
-    # Note: the dedicated `/assistive/tts` endpoint is the preferred path for audio.
-    audio_url = None
-    if request.enable_audio:
-        try:
-            tts_result = generate_speech_audio(simplified_text, slow=False)
-            audio_url = tts_result.audio_url
-        except Exception:
-            audio_url = None
-
-    # Keywords for convenience (used by new assistive endpoints too)
-    keywords = extract_keywords(request.text)
-
-    return {
-        "auto_selected_level": level,
-        "profile_used": request.profile,
-        "overload_warning": overload_warning,
-        "isolation_mode": isolation_mode,
-        "original_analysis": original_analysis,
-        "simplified_text": simplified_text,
-        "dyslexia_optimized_text": dyslexia_view,
-        "audio_mode": audio_payload,
-        "simplified_analysis": simplified_analysis,
-        "cognitive_load_reduction": round(reduction, 2),
-        "impact_summary": f"Cognitive load reduced by {round(reduction, 2)} points ({impact_percentage}% improvement)",
-        "audio_file": audio_url,
-        "keywords": keywords,
-        "personalization": personalization_profile,
-        "difficulty_prediction": difficulty_prediction,
-    }
-
-
-# New path (keeps legacy `/simplify` working too)
 @router.post("/assistive/simplify")
-def simplify_assistive(request: SimplifyRequest):
-    return simplify(request)
+def simplify_text(req: SimplifyRequest):
+    try:
+        # Map profile to simplification level
+        profile_level_map = {
+            "easy_read": 1,
+            "focus": 1,
+            "default": 2,
+            "academic": 3,
+        }
+        level = req.level or profile_level_map.get(req.profile or "default", 2)
+
+        # Compute original cognitive analysis
+        original_analysis = calculate_cognitive_load(req.text)
+
+        # Call LLM-powered simplifier
+        llm_result = llm_simplify(req.text, level)
+        simplified_text = llm_result.get("simplified_text", req.text)
+
+        # Compute simplified cognitive analysis
+        simplified_analysis = calculate_cognitive_load(simplified_text) if simplified_text else {}
+
+        # Compute reduction
+        original_score = original_analysis.get("cognitive_load_score", 0)
+        simplified_score = simplified_analysis.get("cognitive_load_score", 0)
+
+        if original_score > 0:
+            reduction = max(0.0, round((original_score - simplified_score) / original_score * 100, 1))
+        else:
+            reduction = 0.0
+
+        # Extract keywords from original text
+        keywords = extract_keywords(req.text, top_n=6)
+
+        # Generate impact summary
+        impact_summary = _make_impact_summary(original_score, simplified_score, reduction)
+
+        # Persist a session log if user_id is provided
+        if req.user_id:
+            try:
+                reading_time = original_analysis.get("estimated_reading_time_minutes", 0)
+                persist_reading_session(
+                    user_id=req.user_id,
+                    reading_time=reading_time,
+                    pauses=0,
+                    errors=0,
+                    difficult_words_count=len(original_analysis.get("difficult_words", [])),
+                    cognitive_load=original_score,
+                )
+            except Exception as e:
+                print(f"[SIMPLIFY] Session log failed: {e}")
+
+        return {
+            "status": "success",
+            # Core simplification output
+            "simplified_text": simplified_text,
+            "bullet_points": llm_result.get("bullet_points", []),
+            "definitions": llm_result.get("definitions", {}),
+            "step_by_step_explanation": llm_result.get("step_by_step_explanation", []),
+            # Analytics (shape the frontend expects)
+            "original_analysis": {
+                **original_analysis,
+                "cognitive_load_score": round(original_score, 1),
+            },
+            "simplified_analysis": {
+                **simplified_analysis,
+                "cognitive_load_score": round(simplified_score, 1),
+            },
+            "cognitive_load_reduction": reduction,
+            "impact_summary": impact_summary,
+            "keywords": keywords,
+        }
+
+    except Exception as e:
+        print("[SIMPLIFY ERROR]", e)
+        return {
+            "status": "error",
+            "message": str(e)
+        }

@@ -278,6 +278,82 @@ EXERCISE_POOL: Dict[str, List[Dict[str, Any]]] = {
 }
 
 
+PRACTICE_GAMES_POOL = {
+    "dictation": [
+        {"id": "d1", "word": "laugh"}, {"id": "d2", "word": "friend"}, {"id": "d3", "word": "because"}, {"id": "d4", "word": "beautiful"},
+        {"id": "d5", "word": "ocean"}, {"id": "d6", "word": "enough"}, {"id": "d7", "word": "though"}, {"id": "d8", "word": "caught"},
+        {"id": "d9", "word": "island"}, {"id": "d10", "word": "rhythm"}, {"id": "d11", "word": "mountain"}, {"id": "d12", "word": "journey"}
+    ],
+    "error_correction": [
+        {"id": "ec1", "sentence": "I went to the ____.", "incorrect": "stor", "options": ["store", "stoor", "stour"], "answer": "store"},
+        {"id": "ec2", "sentence": "She has ____ apples.", "incorrect": "tooo", "options": ["two", "to", "too"], "answer": "two"},
+        {"id": "ec3", "sentence": "I ____ you were coming.", "incorrect": "new", "options": ["knew", "new", "knwe"], "answer": "knew"},
+        {"id": "ec4", "sentence": "The dog wagged its ____.", "incorrect": "tale", "options": ["tail", "tale", "tall"], "answer": "tail"},
+        {"id": "ec5", "sentence": "Can you ____ the bell?", "incorrect": "heir", "options": ["hear", "here", "heir"], "answer": "hear"},
+        {"id": "ec6", "sentence": "That is my ____ favorite book.", "incorrect": "hole", "options": ["whole", "hole", "whol"], "answer": "whole"}
+    ],
+    "word_sorting": [
+        {"id": "ws1", "bucket1": "starts with b", "bucket2": "starts with d", "words": [
+            {"word": "bat", "bucket": 1}, {"word": "dog", "bucket": 2}, {"word": "bed", "bucket": 1}, {"word": "dad", "bucket": 2}
+        ]},
+        {"id": "ws2", "bucket1": "ends with p", "bucket2": "ends with q", "words": [
+            {"word": "map", "bucket": 1}, {"word": "iraq", "bucket": 2}, {"word": "top", "bucket": 1}, {"word": "macaq", "bucket": 2}
+        ]},
+        {"id": "ws3", "bucket1": "starts with p", "bucket2": "starts with q", "words": [
+            {"word": "pig", "bucket": 1}, {"word": "queen", "bucket": 2}, {"word": "pen", "bucket": 1}, {"word": "quick", "bucket": 2}
+        ]},
+        {"id": "ws4", "bucket1": "starts with m", "bucket2": "starts with w", "words": [
+            {"word": "man", "bucket": 1}, {"word": "water", "bucket": 2}, {"word": "mud", "bucket": 1}, {"word": "web", "bucket": 2}
+        ]}
+    ],
+    "syllable_tapping": [
+        {"id": "st1", "word": "elephant", "syllables": 3},
+        {"id": "st2", "word": "cat", "syllables": 1},
+        {"id": "st3", "word": "computer", "syllables": 3},
+        {"id": "st4", "word": "banana", "syllables": 3},
+        {"id": "st5", "word": "water", "syllables": 2},
+        {"id": "st6", "word": "butterfly", "syllables": 3},
+        {"id": "st7", "word": "apple", "syllables": 2},
+        {"id": "st8", "word": "dog", "syllables": 1},
+        {"id": "st9", "word": "umbrella", "syllables": 3},
+        {"id": "st10", "word": "strawberry", "syllables": 3}
+    ],
+    "word_chains": [
+        {"id": "wc1", "chain": ["cat", "bat", "bad", "bed"]},
+        {"id": "wc2", "chain": ["pig", "dig", "dog", "log"]},
+        {"id": "wc3", "chain": ["hot", "hat", "rat", "ran"]},
+        {"id": "wc4", "chain": ["sun", "bun", "bug", "bag"]},
+        {"id": "wc5", "chain": ["pen", "pan", "pin", "pit"]}
+    ],
+    "sentence_reconstruction": [
+        {"id": "sr1", "words": ["the", "dog", "barked", "loud"]},
+        {"id": "sr2", "words": ["she", "ate", "a", "red", "apple"]},
+        {"id": "sr3", "words": ["i", "saw", "a", "big", "bird"]},
+        {"id": "sr4", "words": ["we", "went", "to", "the", "park"]},
+        {"id": "sr5", "words": ["he", "read", "a", "good", "book"]}
+    ],
+    "rhyme_finder": [
+        {"id": "rf1", "target": "cat", "options": ["bat", "dog", "hat", "sun", "mat", "run"], "answers": ["bat", "hat", "mat"]},
+        {"id": "rf2", "target": "light", "options": ["night", "dark", "bright", "day", "flight", "sun"], "answers": ["night", "bright", "flight"]},
+        {"id": "rf3", "target": "tree", "options": ["free", "leaf", "see", "green", "three", "wood"], "answers": ["free", "see", "three"]},
+        {"id": "rf4", "target": "tall", "options": ["fall", "short", "ball", "wall", "big", "call"], "answers": ["fall", "ball", "wall", "call"]}
+    ],
+    "flashcards": [
+        {"id": "fc1", "word": "could"}, {"id": "fc2", "word": "would"}, {"id": "fc3", "word": "should"}, {"id": "fc4", "word": "there"},
+        {"id": "fc5", "word": "again"}, {"id": "fc6", "word": "always"}, {"id": "fc7", "word": "around"}, {"id": "fc8", "word": "because"},
+        {"id": "fc9", "word": "before"}, {"id": "fc10", "word": "best"}, {"id": "fc11", "word": "both"}, {"id": "fc12", "word": "buy"}
+    ],
+    "homophones": [
+        {"id": "hp1", "sentence": "Can you put it over ____?", "options": ["there", "their", "they're"], "answer": "there"},
+        {"id": "hp2", "sentence": "____ going to the park.", "options": ["there", "their", "they're"], "answer": "they're"},
+        {"id": "hp3", "sentence": "I want to go ____.", "options": ["to", "too", "two"], "answer": "too"},
+        {"id": "hp4", "sentence": "I have ____ apples.", "options": ["to", "too", "two"], "answer": "two"},
+        {"id": "hp5", "sentence": "He threw the ball in the ____.", "options": ["air", "heir", "err"], "answer": "air"},
+        {"id": "hp6", "sentence": "The dog wagged ____ tail.", "options": ["its", "it's"], "answer": "its"}
+    ]
+}
+
+
 class ExerciseGenerator:
     """
     Generates exercises based on skill type, difficulty, and student age.
@@ -349,3 +425,10 @@ class ExerciseGenerator:
             "target_skill": skill,
             "hint": "The letter 'b' has its tummy sticking to the RIGHT.",
         }
+
+    def generate_practice(self, game_type: str) -> Dict[str, Any]:
+        """Generate a dedicated practice game exercise."""
+        pool = PRACTICE_GAMES_POOL.get(game_type, [])
+        if not pool:
+            return {"error": "Game type not found"}
+        return random.choice(pool)

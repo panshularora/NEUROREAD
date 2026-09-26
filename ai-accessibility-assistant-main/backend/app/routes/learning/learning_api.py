@@ -416,3 +416,38 @@ def recommend_exercise(session_id: str):
         "next_exercise": exercise,
         "message": f"You have {len(due_skills)} item{'s' if len(due_skills) != 1 else ''} due for review today.",
     }
+
+@router.get("/practice/generate")
+def generate_practice(game_type: str):
+    """
+    Generate an exercise of a specific game type.
+    """
+    return gen.generate_practice(game_type)
+
+class DictationEvaluationRequest(BaseModel):
+    target: str
+    answer: str
+
+@router.post("/practice/evaluate/dictation")
+def evaluate_dictation(body: DictationEvaluationRequest):
+    from difflib import SequenceMatcher
+    target = body.target.lower().strip()
+    user = body.answer.lower().strip()
+    
+    # Simple phonetic normalizer
+    def phonetics(w):
+        return w.replace('ph', 'f').replace('c', 'k').replace('ck', 'k').replace('tion', 'shun').replace('gh', 'f')
+    
+    t_p = phonetics(target)
+    u_p = phonetics(user)
+    ratio = SequenceMatcher(None, t_p, u_p).ratio()
+    
+    # If the ratio is very high, or the stripped versions match exactly
+    is_correct = ratio >= 0.75 or target == user
+    
+    return {
+        "correct": is_correct,
+        "phonetic_match_score": round(ratio, 2),
+        "target": target,
+        "answer": user
+    }

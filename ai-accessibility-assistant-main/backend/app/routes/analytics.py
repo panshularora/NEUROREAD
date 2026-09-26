@@ -1,9 +1,16 @@
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
-from app.services.analytics.dashboard import get_user_dashboard
+from app.services.analytics.dashboard import get_user_dashboard, log_user_session
+
+class SessionLogCreate(BaseModel):
+    user_id: str
+    reading_time: float
+    pauses: int
+    errors: int
+    difficult_words_count: int = 0
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
-
 
 @router.get(
     "/dashboard/{user_id}",
@@ -41,3 +48,18 @@ def analytics_dashboard(user_id: str):
     except Exception as exc:  # pragma: no cover - defensive
         raise HTTPException(status_code=500, detail=str(exc))
 
+@router.post(
+    "/session",
+    summary="Log a user reading session (time, pauses, errors).",
+)
+def submit_session_log(session_data: SessionLogCreate):
+    try:
+        return log_user_session(
+            user_id=session_data.user_id,
+            reading_time=session_data.reading_time,
+            pauses=session_data.pauses,
+            errors=session_data.errors,
+            difficult_words_count=session_data.difficult_words_count
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))

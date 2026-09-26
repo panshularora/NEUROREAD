@@ -8,7 +8,7 @@ SM-2 scheduling:
 - Repetition n: interval = interval_{n-1} * easiness_factor
 - Easiness factor updated based on answer quality (0-5)
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Tuple
 
 
@@ -121,12 +121,16 @@ class SM2Scheduler:
             True if the item is due (or overdue)
         """
         due_date = last_review + timedelta(days=interval_days)
-        return datetime.utcnow() >= due_date
+        now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
+        due_date_naive = due_date.replace(tzinfo=None)
+        return now_utc >= due_date_naive
 
     def days_until_due(self, last_review: datetime, interval_days: int) -> int:
         """Returns number of days until next review (negative if overdue)."""
         due_date = last_review + timedelta(days=interval_days)
-        delta = due_date - datetime.utcnow()
+        now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
+        due_date_naive = due_date.replace(tzinfo=None)
+        delta = due_date_naive - now_utc
         return delta.days
 
     def due_description(self, days_until: int) -> str:
@@ -143,3 +147,4 @@ class SM2Scheduler:
             return f"In {days_until // 7} weeks"
         else:
             return f"In {days_until // 30} months"
+
