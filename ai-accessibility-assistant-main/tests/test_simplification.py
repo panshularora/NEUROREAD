@@ -93,3 +93,50 @@ def test_phoneme_annotator_colors_b_blue():
     assert b_token["color"] == "#4A90D9", (
         f"Expected '#4A90D9' for 'b', got '{b_token['color']}'"
     )
+
+
+MEDICAL_TEXT = (
+    "The administration of pharmaceutical compounds necessitates meticulous consideration of "
+    "contraindications, particularly in patients presenting with comorbidities. Physicians must "
+    "therefore evaluate renal and hepatic function prior to prescribing. Failure to do so can "
+    "result in adverse drug reactions that prolong hospitalisation."
+)
+
+
+def test_fallback_lowers_cognitive_load():
+    from app.services.assistive.simplifier import _fallback_simplify
+    from app.services.cognitive_load import calculate_cognitive_load
+
+    simplified = _fallback_simplify(MEDICAL_TEXT, level=2)["simplified_text"]
+    before = calculate_cognitive_load(MEDICAL_TEXT)["cognitive_load_score"]
+    after = calculate_cognitive_load(simplified)["cognitive_load_score"]
+    assert after < before - 10, (before, after, simplified)
+
+
+def test_fallback_keeps_every_sentence_and_never_truncates():
+    from app.services.assistive.simplifier import _fallback_simplify
+
+    simplified = _fallback_simplify(MEDICAL_TEXT, level=1)["simplified_text"]
+    assert "…" not in simplified
+    assert simplified.count(".") >= MEDICAL_TEXT.count(".")
+    assert "hospital stay" in simplified
+
+
+def test_fallback_swaps_words_and_reports_them():
+    from app.services.assistive.simplifier import _fallback_simplify
+
+    result = _fallback_simplify("Physicians must therefore evaluate renal function prior to surgery.", level=2)
+    assert result["simplified_text"] == "Doctors must check kidney function before surgery."
+    assert result["definitions"]["physicians"] == "doctors"
+
+
+def test_fallback_splits_long_sentences_at_clause_boundaries():
+    from app.services.assistive.simplifier import _fallback_simplify
+
+    text = (
+        "The committee reviewed every application that arrived before the deadline last month, "
+        "which took considerably longer than anybody on the panel had originally expected."
+    )
+    pieces = _fallback_simplify(text, level=1)["bullet_points"]
+    assert len(pieces) == 2
+    assert pieces[1].startswith("This took")
