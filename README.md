@@ -4,7 +4,7 @@
 **Why:** dense text is a barrier for dyslexic readers. Simplifying the text and then practising the specific weak skills (e.g., b/d distinction, spelling) targets both problems.
 **Recognition:** 1st place of 200+ teams at the WiCyS hackathon. <!-- Panshul: confirm the exact event name/year and whether it was entered as "NeuroCare" -->
 
-**Status (Sep 2026):** runs locally. The Vercel deploy (`neuroread-final-main-everyhting.vercel.app`) currently returns **404**, so there is no live demo right now. The learner-model tests pass (`tests/test_bkt.py`, 10 tests).
+**Status (Sep 2026):** the full app runs locally. The frontend is live at [neuroread-final-main-everyhting.vercel.app](https://neuroread-final-main-everyhting.vercel.app) (built by Vercel from the [`neuroread-final-main-everyhting`](https://github.com/panshularora/neuroread-final-main-everyhting) deploy snapshot). The backend is not deployed yet, so on the live site the features that call the API (simplify, learning and practice sessions) do not work; run it locally for those. The 15 unit tests in `tests/` (BKT engine, simplifier fallback, phoneme annotation) pass on Python 3.11.
 
 | Mode | What it does |
 |---|---|
@@ -54,11 +54,12 @@ The app will open at `http://localhost:5173`.
 
 ```bash
 cd ai-accessibility-assistant-main
-pip install pytest
+pip install -r backend/requirements.txt pytest
 
-pytest tests/test_bkt.py -v
-pytest tests/test_simplification.py -v
+pytest tests/ -v
 ```
+
+No API key is needed: without `GROQ_API_KEY` the simplifier test uses the rule-based fallback. `keybert` is not needed for the tests; it is opt-in at runtime (`NEUROREAD_USE_KEYBERT=1`) and pulls in torch.
 
 ---
 
@@ -122,9 +123,8 @@ pytest tests/test_simplification.py -v
 ---
 
 ## Repo notes and next steps
-- Redeploy the app (or remove the dead link from `neuroread-final-main-everyhting`).
-- Remove committed artifacts: generated MP3s, pyright/error logs, `Untitled.docx` / `Untitled.txt`.
-- Add a CI job that runs `pytest tests/`.
+- Deploy the backend (a Render blueprint, `render.yaml`, is in `neuroread-final-main-everyhting`) and set `VITE_API_URL` in the Vercel project so the live site's API features work.
+- Generated TTS audio (`backend/app/static/audio/*.mp3`) and logs are no longer tracked; the audio is regenerated at runtime by gTTS. `Untitled.docx` / `Untitled.txt` are still in the repo.
 - Earlier or alternate snapshots: `NEUROREAD-CAD`, `ai-assistant`, `amdslingshot`, `neuroread-final-main-everyhting`.
 
 ## License
