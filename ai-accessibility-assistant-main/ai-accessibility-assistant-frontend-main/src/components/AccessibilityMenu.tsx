@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const AccessibilityMenu = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const AccessibilityMenu = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
   const [fontSize, setFontSize] = useState(() => Number(localStorage.getItem('fontSize')) || 0);
   const [letterSpacing, setLetterSpacing] = useState(() => Number(localStorage.getItem('letterSpacing')) || 0);
   const [lineSpacing, setLineSpacing] = useState(() => Number(localStorage.getItem('lineSpacing')) || 1.6);
@@ -39,25 +38,15 @@ const AccessibilityMenu = () => {
 
   return (
     <>
-      {/* Floating Trigger */}
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => setIsOpen(true)}
-        className="fixed right-6 bottom-24 z-[100] w-14 h-14 rounded-2xl bg-moss text-cream shadow-lg flex items-center justify-center border border-white/20"
-      >
-        <span className="iconify text-2xl" data-icon="solar:accessibility-bold-duotone" />
-      </motion.button>
-
       <AnimatePresence>
-        {isOpen && (
+        {open && (
           <>
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
+              onClick={onClose}
               className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[110]"
             />
 
@@ -74,7 +63,7 @@ const AccessibilityMenu = () => {
                   <span className="iconify text-clay" data-icon="solar:settings-bold-duotone" />
                   Accessibility
                 </h2>
-                <button onClick={() => setIsOpen(false)} className="w-10 h-10 rounded-full hover:bg-moss/5 flex items-center justify-center transition-colors">
+                <button onClick={onClose} className="w-10 h-10 rounded-full hover:bg-moss/5 flex items-center justify-center transition-colors">
                   <span className="iconify text-xl" data-icon="solar:close-circle-linear" />
                 </button>
               </div>

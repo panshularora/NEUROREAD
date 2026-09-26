@@ -9,7 +9,7 @@ import { speakWithSync } from '../utils/tts';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifier, onSetInputText }) {
+export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifier, onSetInputText, onNavigate }) {
   const [docResult, setDocResult] = useState(null);
   const [docError, setDocError] = useState('');
   const [ocrLoading, setOcrLoading] = useState(false);
@@ -280,7 +280,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
               <button onClick={onOpenSimplifier} className="px-4 py-2 bg-moss text-white text-xs font-bold rounded-xl hover:shadow-lg transition-all hover:-translate-y-0.5">
                 Open Simplifier
               </button>
-              <button onClick={() => document.querySelector('a[href="#modes"]')?.click()} className="px-4 py-2 bg-white text-moss text-xs font-bold rounded-xl border border-moss/10 hover:bg-moss/5 transition-all">
+              <button onClick={() => onNavigate?.('learn')} className="px-4 py-2 bg-white text-moss text-xs font-bold rounded-xl border border-moss/10 hover:bg-moss/5 transition-all">
                 Practice Phonics
               </button>
             </div>
