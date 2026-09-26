@@ -1,8 +1,6 @@
 from pathlib import Path
 import os
 
-print("🚀 APP STARTING...")
-
 # Load .env safely
 from dotenv import load_dotenv
 try:
@@ -72,10 +70,15 @@ async def log_requests(request, call_next):
     print(f"[api] {request.method} {request.url.path} -> {response.status_code}")
     return response
 
+# Comma-separated list of allowed origins, e.g.
+# CORS_ORIGINS=https://neuroread.vercel.app,http://localhost:5173
+# Defaults to "*" so a fresh deploy works; the frontend sends no cookies.
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # for deployment (safe for now)
-    allow_credentials=True,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials="*" not in CORS_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
