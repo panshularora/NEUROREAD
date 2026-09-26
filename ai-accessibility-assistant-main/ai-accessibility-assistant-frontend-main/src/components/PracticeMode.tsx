@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { ensureUserId } from '../services/api';
+import { ensureUserId, generatePracticeGame, friendlyError } from '../services/api';
 import {
   DictationGame, ErrorCorrectionGame, WordSortingGame, SyllableTappingGame,
   WordChainsGame, SentenceReconstructionGame, RhymeFinderGame, FlashcardsGame, HomophonesGame
 } from './PracticeGames';
 
-const API_URL = import.meta.env.VITE_API_URL;
 
 const PRACTICE_MODES = [
   { id: 'dictation', title: 'Dictation', icon: 'solar:pen-bold-duotone', desc: 'Hear a word and type it. Phonetic spelling counts!', color: 'text-clay', bg: 'bg-clay/10' },
@@ -24,6 +23,7 @@ const PracticeMode = ({ active }) => {
   const [gameData, setGameData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState(null); // { correct: boolean }
+  const [loadError, setLoadError] = useState('');
 
   const userId = ensureUserId();
 
@@ -33,14 +33,11 @@ const PracticeMode = ({ active }) => {
     setActiveGame(modeId);
     setLoading(true);
     setFeedback(null);
+    setLoadError('');
     try {
-      const res = await fetch(`${API_URL}/api/learning/practice/generate?game_type=${modeId}&t=${Date.now()}`);
-      if (!res.ok) throw new Error("Failed to fetch game data");
-      const data = await res.json();
-      setGameData(data);
+      setGameData(await generatePracticeGame(modeId));
     } catch (err) {
-      console.error(err);
-      alert("Oops! Could not load game data from the server. Make sure the backend is running!");
+      setLoadError(friendlyError(err, "That game couldn't be loaded. Please try again."));
       setActiveGame(null);
     } finally {
       setLoading(false);
@@ -113,6 +110,12 @@ const PracticeMode = ({ active }) => {
         <p className="text-text-muted text-xl max-w-2xl mx-auto">Evidence-based dyslexia therapy mini-games designed to rebuild reading confidence and automaticity.</p>
       </div>
       
+      {loadError && (
+        <p role="alert" className="mb-8 rounded-2xl border border-err/30 bg-err/5 p-4 text-base text-err">
+          {loadError}
+        </p>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {PRACTICE_MODES.map((mode, i) => (
           <div key={mode.id} onClick={() => startGame(mode.id)}

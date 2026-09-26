@@ -4,6 +4,7 @@ import { useAsync } from '../hooks/useAsync';
 import InteractiveReader from './reading/InteractiveReader';
 import CompanionAvatar from './reading/CompanionAvatar';
 import { X } from 'lucide-react';
+import ApiNotice from './ApiNotice';
 
 export default function SimplifierModal({
   open,
@@ -27,6 +28,7 @@ export default function SimplifierModal({
   const overlayRef = useRef(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [micNote, setMicNote] = useState('');
   const raw = metrics?.raw || null;
 
   const [rewriteMode, setRewriteMode] = useState('simpler');
@@ -56,7 +58,8 @@ export default function SimplifierModal({
        const timeSeconds = (Date.now() - sessionStartTime) / 1000;
        const readingTimeMinutes = timeSeconds / 60;
        const diffWords = difficultWordsSet?.size || 0;
-       submitSessionLog(userId, readingTimeMinutes, pausesCount, errorsCount, diffWords).catch(console.error);
+       // Progress logging is best effort; the reader shouldn't see an error for it.
+       submitSessionLog(userId, readingTimeMinutes, pausesCount, errorsCount, diffWords).catch(() => {});
 
        setSessionStartTime(null);
        setPausesCount(0);
@@ -268,7 +271,7 @@ export default function SimplifierModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-11 h-11 rounded-full hover:bg-ink/5 flex items-center justify-center border border-line"
+            className="w-11 h-11 shrink-0 rounded-full hover:bg-ink/5 flex items-center justify-center border border-line"
             aria-label="Close simplifier"
           >
             <X className="h-5 w-5" aria-hidden="true" />
@@ -277,6 +280,7 @@ export default function SimplifierModal({
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">
           <div className="lg:col-span-3 p-5 sm:p-8 lg:border-r border-moss/10">
+            <ApiNotice feature="Simplifying and the tutor" className="mb-6" />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
               <div>
@@ -328,21 +332,23 @@ export default function SimplifierModal({
               <button 
                 type="button"
                 onClick={() => {
+                  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                  if (!SpeechRecognition) {
+                    setMicNote('Dictation isn’t supported in this browser. Chrome and Edge support it.');
+                    return;
+                  }
                   try {
-                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                    if (SpeechRecognition) {
-                       const recognition = new SpeechRecognition();
-                       recognition.onstart = () => {};
-                       recognition.onresult = (event) => {
-                         const transcript = event.results[0][0].transcript;
-                         onInputTextChange(inputText ? inputText + ' ' + transcript : transcript);
-                       };
-                       recognition.start();
-                    } else {
-                       alert('Speech recognition is not supported in this browser.');
-                    }
-                  } catch (e) {
-                     console.error(e);
+                    const recognition = new SpeechRecognition();
+                    recognition.onstart = () => setMicNote('Listening…');
+                    recognition.onend = () => setMicNote('');
+                    recognition.onerror = () => setMicNote('Couldn’t hear anything. Check microphone access and try again.');
+                    recognition.onresult = (event) => {
+                      const transcript = event.results[0][0].transcript;
+                      onInputTextChange(inputText ? inputText + ' ' + transcript : transcript);
+                    };
+                    recognition.start();
+                  } catch {
+                    setMicNote('The microphone couldn’t be started.');
                   }
                 }}
                 className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white shadow-sm border border-moss/10 hover:bg-clay hover:text-white hover:border-clay flex items-center justify-center text-moss transition-all group-focus-within:shadow-md"
@@ -352,6 +358,9 @@ export default function SimplifierModal({
                 <span className="iconify text-xl" data-icon="solar:microphone-3-bold-duotone" />
               </button>
             </div>
+            {micNote && (
+              <p role="status" className="mt-2 text-sm text-muted">{micNote}</p>
+            )}
 
             <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
               <div className="flex items-center gap-2">

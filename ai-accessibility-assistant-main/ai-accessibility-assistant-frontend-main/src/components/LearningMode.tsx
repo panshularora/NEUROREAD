@@ -14,10 +14,12 @@ import {
   updateLearningProgress,
   ensureUserId,
   checkAnswer,
+  startLearningSession,
+  getSessionSkills,
+  submitSessionAnswer,
+  friendlyError,
 } from '../services/api';
 import AudioButton from './AudioButton';
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 interface Exercise {
   id: string;
@@ -107,6 +109,7 @@ function AdaptiveLearningSection({ userId }: { userId: string }) {
   const [lastSM2Update, setLastSM2Update] = useState<any>(null);
   const [stats, setStats] = useState({ correct: 0, total: 0, streak: 0, longest_streak: 0 });
   const [answerDisabled, setAnswerDisabled] = useState(false);
+  const [loadError, setLoadError] = useState('');
 
   const age = parseInt(localStorage.getItem('neuroread-user-age') || '8', 10);
 
@@ -117,17 +120,13 @@ function AdaptiveLearningSection({ userId }: { userId: string }) {
 
   async function startSession() {
     setLoading(true);
+    setLoadError('');
     try {
-      const res = await fetch(`${API_URL}/api/learning/session/start`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, age, session_type: 'learning' }),
-      });
-      const data = await res.json();
+      const data = await startLearningSession(userId, age, 'learning');
       setSessionId(data.session_id);
       setCurrentExercise(data.first_exercise);
     } catch (err) {
-      console.error('Could not start learning session:', err);
+      setLoadError(friendlyError(err, "Your session couldn't be started. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -136,12 +135,11 @@ function AdaptiveLearningSection({ userId }: { userId: string }) {
   async function loadSkills() {
     if (!sessionId) return;
     try {
-      const res = await fetch(`${API_URL}/api/learning/session/${sessionId}/skills`);
-      const data = await res.json();
+      const data = await getSessionSkills(sessionId);
       setSkills(data.skills || []);
       if (data.session_stats) setStats(data.session_stats);
-    } catch (err) {
-      console.error('Could not load skills:', err);
+    } catch {
+      // The skills panel keeps its last values; the exercise flow is unaffected.
     }
   }
 
@@ -151,16 +149,7 @@ function AdaptiveLearningSection({ userId }: { userId: string }) {
 
     const startTime = Date.now();
     try {
-      const res = await fetch(`${API_URL}/api/learning/session/${sessionId}/answer`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          exercise_id: currentExercise.id,
-          answer,
-          response_time_ms: Date.now() - startTime,
-        }),
-      });
-      const data = await res.json();
+      const data = await submitSessionAnswer(sessionId, currentExercise.id, answer, Date.now() - startTime);
 
       setFeedback(data.correct ? 'correct' : 'incorrect');
       setExplanation(data.explanation);
@@ -180,7 +169,7 @@ function AdaptiveLearningSection({ userId }: { userId: string }) {
         setAnswerDisabled(false);
       }, 3000);
     } catch (err) {
-      console.error('Answer submission failed:', err);
+      setLoadError(friendlyError(err, "Your answer couldn't be checked. Please try again."));
       setAnswerDisabled(false);
     }
   }
@@ -224,6 +213,11 @@ function AdaptiveLearningSection({ userId }: { userId: string }) {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* Exercise area */}
         <div className="lg:col-span-3">
+          {loadError && (
+            <p role="alert" className="mb-4 rounded-2xl border border-err/30 bg-err/5 p-4 text-base text-err">
+              {loadError}
+            </p>
+          )}
           {explanation && (
             <div style={{
               padding: '12px 16px', borderRadius: 12, marginBottom: 16,
@@ -243,10 +237,16 @@ function AdaptiveLearningSection({ userId }: { userId: string }) {
               feedback={feedback}
             />
           ) : (
-            <div className="text-center py-16">
-              <p className="text-moss/50 mb-4">No exercise loaded yet.</p>
-              <button onClick={startSession} className="px-6 py-3 bg-moss text-white rounded-xl font-bold">
-                Start Session
+            <div className="rounded-2xl border border-dashed border-line px-6 py-12 text-center">
+              <p className="mb-5 text-base text-muted">
+                {loadError ? 'The first exercise could not be loaded.' : 'No exercise loaded yet.'}
+              </p>
+              <button
+                type="button"
+                onClick={startSession}
+                className="rounded-xl bg-primary px-6 py-3 font-bold text-white hover:bg-primary/90"
+              >
+                {loadError ? 'Try again' : 'Start session'}
               </button>
             </div>
           )}
@@ -487,7 +487,7 @@ function PhonicsLabSection({ userId }: { userId: string }) {
     try {
       const res = await getFlashcard(LETTERS[idx]);
       setFlashcard(res?.data || res);
-    } catch (e) { console.error(e); }
+    } catch { setFlashcard(null); }
   }, []);
 
   useEffect(() => { fetchFlashcard(letterIdx); }, [letterIdx, fetchFlashcard]);

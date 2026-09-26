@@ -6,6 +6,7 @@ const ttsCache = new Map();
 export default function AudioButton({ src, text, autoPlay = false, className = '' }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
   const audioRef = useRef(null);
 
   const performPlay = async () => {
@@ -27,9 +28,9 @@ export default function AudioButton({ src, text, autoPlay = false, className = '
           ttsCache.set(text, URL.createObjectURL(blob));
         }
         targetUrl = ttsCache.get(text);
-      } catch (err) {
-        console.error("Failed to generate TTS:", err);
+      } catch {
         setIsLoading(false);
+        setFailed(true);
         return;
       }
       setIsLoading(false);
@@ -47,9 +48,9 @@ export default function AudioButton({ src, text, autoPlay = false, className = '
       audio.onerror = () => setIsPlaying(false);
       
       await audio.play();
-    } catch (e) {
-      console.warn("Audio playback failed or was blocked:", e);
+    } catch {
       setIsPlaying(false);
+      setFailed(true);
     }
   };
 
@@ -68,16 +69,18 @@ export default function AudioButton({ src, text, autoPlay = false, className = '
     <button
       onClick={(e) => {
         e.stopPropagation();
+        setFailed(false);
         performPlay();
       }}
+      type="button"
       disabled={isLoading}
       className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
         isPlaying 
           ? 'bg-clay text-white animate-pulse' 
           : 'bg-charcoal/5 text-charcoal/40 hover:bg-clay/10 hover:text-clay'
       } ${isLoading ? 'opacity-50 cursor-wait' : ''} ${className}`}
-      aria-label="Play audio"
-      title="Play audio"
+      aria-label={failed ? 'Audio unavailable, try again' : isPlaying ? 'Stop audio' : 'Play audio'}
+      title={failed ? 'Audio is unavailable right now' : 'Play audio'}
     >
       {isLoading ? (
         <span className="w-4 h-4 border-2 border-charcoal/20 border-t-charcoal/60 rounded-full animate-spin" />

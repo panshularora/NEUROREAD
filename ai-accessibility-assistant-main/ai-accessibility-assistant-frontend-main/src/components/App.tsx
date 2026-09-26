@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { MotionConfig } from 'framer-motion';
-import { simplifyText, ensureUserId, setUserId } from '../services/api';
+import { simplifyText, ensureUserId, setUserId, friendlyError } from '../services/api';
 import { useHashRoute } from '../lib/useHashRoute';
 import type { Route } from '../lib/useHashRoute';
 
@@ -10,6 +10,7 @@ declare global {
   }
 }
 import AssistiveMode from './AssistiveMode';
+import ApiNotice from './ApiNotice';
 import Hero from './Hero';
 import HowItWorks from './HowItWorks';
 import History from './History';
@@ -115,6 +116,7 @@ export default function App() {
 
     try {
       const data = await simplifyText(text, profile, userId);
+      if (data?.status === 'error') throw new Error(data.message || 'simplify failed');
       const adapted = {
         simplifiedText: data.simplified_text ?? '',
         originalScore: Math.round(data.original_analysis?.cognitive_load_score ?? 0),
@@ -148,7 +150,7 @@ export default function App() {
         return [live, ...prev];
       });
     } catch (e: any) {
-      setError(e?.message || 'Error reaching the API.');
+      setError(friendlyError(e, "That text couldn't be simplified. Try a shorter passage or try again in a moment."));
     } finally {
       setLoading(false);
     }
@@ -189,6 +191,7 @@ export default function App() {
         <Navbar route={route} onOpenSettings={() => setSettingsOpen(true)} />
 
         <main id="main" ref={mainRef} tabIndex={-1} className="pb-24 outline-none md:pb-0">
+          <ApiNotice wrapperClassName="mx-auto max-w-6xl px-4 pt-6 sm:px-6" />
           {(route === 'home' || route === 'read') && (
             <>
               <Hero />

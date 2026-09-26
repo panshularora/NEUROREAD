@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Camera, FileText, ImageUp, Play, Square, Pause, WandSparkles, Loader2 } from 'lucide-react';
-import { uploadDocument, simplifyText } from '../services/api';
+import { uploadDocument, simplifyText, checkTextDifficulty, friendlyError } from '../services/api';
 import { useAsync } from '../hooks/useAsync';
 import Tesseract from 'tesseract.js';
 import { useAccessibilityStore } from '../stores/accessibilityStore';
@@ -8,7 +8,6 @@ import { colorizeText } from '../utils/phonemeColors.tsx';
 import { speakWithSync } from '../utils/tts';
 
 
-const API_URL = import.meta.env.VITE_API_URL;
 
 export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifier, onSetInputText, onNavigate }) {
   const [docResult, setDocResult] = useState(null);
@@ -57,15 +56,9 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
     if (!text || !text.trim()) return;
     setCheckingDifficulty(true);
     try {
-      const res = await fetch(`${API_URL}/assistive/difficulty-check`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text.trim(), user_ability: 0.0 }),
-      });
-      const data = await res.json();
-      setDifficultyResult(data);
+      setDifficultyResult(await checkTextDifficulty(text.trim(), 0.0));
     } catch (err) {
-      console.error('Difficulty check failed:', err);
+      setDocError(friendlyError(err, "Couldn't check the difficulty of this text."));
     } finally {
       setCheckingDifficulty(false);
     }
@@ -135,7 +128,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
       setStream(s);
       if (videoRef.current) videoRef.current.srcObject = s;
     } catch (err) {
-      setDocError('Error opening camera: ' + err.message);
+      setDocError("The camera couldn't be opened. Check that this site is allowed to use it.");
       setCameraOpen(false);
     }
   };
@@ -199,7 +192,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
       });
       setActiveTab('simplified');
     } catch (err) {
-      setDocError('Could not read text from the image: ' + err.message);
+      setDocError("Couldn't read text from that image. Try a sharper, well-lit photo.");
     } finally {
       setOcrLoading(false);
     }
@@ -227,7 +220,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
         });
         setActiveTab('simplified');
       } catch (err) {
-        setDocError(err?.message || 'Failed to upload document.');
+        setDocError(friendlyError(err, "That file couldn't be read. PDF, DOCX and TXT files work best."));
       } finally {
         setOcrLoading(false);
       }
