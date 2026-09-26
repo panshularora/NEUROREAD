@@ -2,102 +2,117 @@
 
 [![tests](https://github.com/panshularora/NEUROREAD/actions/workflows/tests.yml/badge.svg)](https://github.com/panshularora/NEUROREAD/actions/workflows/tests.yml)
 
-**What:** a web app for dyslexic readers. Paste complex text and an LLM simplifies it; the text is read aloud word by word with phoneme colour coding; and adaptive exercises track each skill with classical learner models.
-**Why:** dense text is a barrier for dyslexic readers. Simplifying the text and then practising the specific weak skills (e.g., b/d distinction, spelling) targets both problems.
+**What:** a web app for dyslexic readers. Paste or upload dense text and it is simplified, scored for cognitive load and read aloud with b/d/p/q colour coding. Children get adaptive phonics exercises and nine short practice games; every session feeds a progress dashboard.
+**Why:** dense text is a barrier for dyslexic readers. Simplifying the text and then practising the specific weak skills (b/d distinction, spelling, syllables, homophones) targets both problems.
 **Recognition:** 1st place of 200+ teams at the WiCyS hackathon. <!-- Panshul: confirm the exact event name/year and whether it was entered as "NeuroCare" -->
+**Team:** built by Panshul Arora and [Naman Rai](https://github.com/namanraii). The code here is kept in sync with the final team version in [namanraii/NeuroRead](https://github.com/namanraii/NeuroRead).
 
-**Status (Sep 2026):** the full app runs locally. The frontend is live at [neuroread-final-main-everyhting.vercel.app](https://neuroread-final-main-everyhting.vercel.app) (built by Vercel from the [`neuroread-final-main-everyhting`](https://github.com/panshularora/neuroread-final-main-everyhting) deploy snapshot). The backend is not deployed yet, so on the live site the features that call the API (simplify, learning and practice sessions) do not work; run it locally for those. The 15 unit tests in `tests/` (BKT engine, simplifier fallback, phoneme annotation) pass on Python 3.11 and run in GitHub Actions on every push.
+**Status (Sep 2026):** the full app runs locally. The frontend is live at [neuroread-final-main-everyhting.vercel.app](https://neuroread-final-main-everyhting.vercel.app) (built from the [`neuroread-final-main-everyhting`](https://github.com/panshularora/neuroread-final-main-everyhting) deploy repo). The backend is not deployed yet, so on the live site the features that call the API (simplify, learning, practice, dashboard) do not work; run the backend locally for those. The 35 tests in `tests/` run in GitHub Actions on every push.
 
-| Mode | What it does |
+## Features
+
+| Area | What it does |
 |---|---|
-| **Assistive Mode** | Paste text, then the LLM (Llama 3.3 70B via Groq) simplifies it, then it is read aloud word by word (gTTS) with colour coding for b/d/p/q. If the LLM call fails, a deterministic rule-based simplifier runs instead |
-| **Learning Mode** | Adaptive exercises (phonics, spelling, comprehension). After every answer, Bayesian Knowledge Tracing updates P(know) per skill, IRT 2PL scores the item, and a ZPD rule adjusts difficulty |
-| **Practice Mode** | SM-2 spaced-repetition review queue of the skills due for review |
+| **Smart Simplifier** (Assistive) | Rewrites text with Llama 3.1 8B via Groq at a level picked from the reader profile or the text's cognitive load. Returns the simplified text, bullet points, definitions, step-by-step explanation, before/after cognitive-load scores and keywords. Without an API key a deterministic rule-based simplifier runs instead |
+| **Cognitive load score** | 0-100 from Flesch reading ease (40%), sentence length (30%) and complex-word ratio (30%), computed with textstat and spaCy |
+| **Reading support** | Word-by-word read-aloud (Web Speech API, gTTS on the backend), phoneme colours for b/d/p/q, reading ruler, colour overlays, OpenDyslexic, adjustable size and spacing; settings persist in `localStorage` |
+| **Documents and OCR** | Upload PDF/DOCX/TXT for server-side extraction and simplification; photos and camera captures are read in the browser with Tesseract.js |
+| **AI tutor, vocab cards, concept graph, heatmap** | Ask questions about a passage, get vocabulary cards and a keyword graph, see which sentences are hardest |
+| **Learning Mode** | Adaptive exercises. After every answer Bayesian Knowledge Tracing updates P(know) per skill, IRT 2PL scores the item, a ZPD rule adjusts difficulty and SM-2 schedules the next review. Also Read Along, Phonics Lab and Story Mode |
+| **Practice Mode** | Nine mini-games: dictation (phonetic spellings accepted), error correction, b/d word sorting, syllable tapping, word chains, sentence builder, rhyme finder, speed flashcards, homophones |
+| **Dashboard** | Reading sessions (time, pauses, errors, difficult words) with a behavioural cognitive-load score, trend, difficulty distribution and plain-language insights |
 
-The learner models (`backend/app/ml/bkt_engine.py`, `irt_scorer.py`, `sm2_scheduler.py`, `zpd_flow.py`) are hand-implemented with fixed parameters. Nothing is trained from data. Accessibility settings (font, size, overlay, speed) persist in `localStorage`.
+The learner models (`backend/app/ml/bkt_engine.py`, `irt_scorer.py`, `sm2_scheduler.py`, `zpd_flow.py`) are hand-implemented with fixed parameters. Nothing is trained from data.
 
 ---
 
 ## How to run
 
 ### Prerequisites
-- Python 3.11+
-- Node.js 18+
-- A Groq API key (free at https://console.groq.com)
+- Python 3.11
+- Node.js 18+ (20 recommended)
+- Optional: a Groq API key (free at https://console.groq.com). Without it the simplifier uses the rule-based fallback and the tutor replies that the key is missing.
 
 ### 1. Backend
 
 ```bash
 cd ai-accessibility-assistant-main/backend
-
-# Copy and fill in your API key
-cp .env.example .env
-# Edit .env and set GROQ_API_KEY=...
-
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+python -m spacy download en_core_web_sm   # optional, improves sentence splitting
+
+cp .env.example .env                       # then set GROQ_API_KEY
 uvicorn app.main:app --reload --port 8000
 ```
 
-The API will be live at `http://localhost:8000`.  
-Verify with: `curl http://localhost:8000/health`
+Check it with `curl http://localhost:8000/health`. Interactive API docs are at `http://localhost:8000/docs`.
+
+Environment variables: `GROQ_API_KEY`, `CORS_ORIGINS` (comma-separated, default `*`), `DATABASE_URL` (default `sqlite:///./neuroadapt.db`), `NEUROREAD_USE_KEYBERT=1` to use KeyBERT for keywords (needs `pip install keybert`, which pulls in torch).
 
 ### 2. Frontend
 
 ```bash
 cd ai-accessibility-assistant-main/ai-accessibility-assistant-frontend-main
-
-npm install
+cp .env.example .env                       # VITE_API_URL=http://localhost:8000
+npm ci
 npm run dev
 ```
 
-The app will open at `http://localhost:5173`.
+The app opens at `http://localhost:5173`. `npm run build` writes a static build to `dist/`.
 
-### 3. Running tests
+### 3. Tests
 
 ```bash
 cd ai-accessibility-assistant-main
 pip install -r backend/requirements.txt pytest
-
-pytest tests/ -v
+python -m pytest tests/ -v
 ```
 
-No API key is needed: without `GROQ_API_KEY` the simplifier test uses the rule-based fallback. `keybert` is not needed for the tests; it is opt-in at runtime (`NEUROREAD_USE_KEYBERT=1`) and pulls in torch.
+No API key is needed. `tests/test_api.py` runs against the FastAPI app with a throwaway SQLite file. `backend/smoke_test.py` hits a running server (`NEUROREAD_API_URL`, default `http://127.0.0.1:8000`).
+
+---
+
+## Deployment
+
+- **Backend (Render):** `render.yaml` at the repo root is a Render Blueprint (root directory `ai-accessibility-assistant-main/backend`, start command `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, health check `/health`). Set `GROQ_API_KEY` in the Render dashboard.
+- **Frontend (Vercel):** import the repo, set **Root Directory** to `ai-accessibility-assistant-main/ai-accessibility-assistant-frontend-main` (framework preset Vite; `vercel.json` there adds the SPA fallback) and set `VITE_API_URL` to the Render URL.
 
 ---
 
 ## Architecture
 
 ```
-/backend          FastAPI Python backend
-  /app
-    /ml           BKT, IRT, SM-2, ZPD, Exercise Generator
-    /routes       API route handlers
-    /services     Simplification, TTS, OCR, LLM client
-  session_store.py  Redis/in-memory session state
-
-/frontend (ai-accessibility-assistant-frontend-main)
-  /src
-    /components   React UI components
-    /stores       Zustand state (accessibilityStore)
-    /styles       accessibility.css
-
-/tests            pytest unit tests
+ai-accessibility-assistant-main/
+  backend/                      FastAPI
+    app/main.py                 app, CORS, router registration
+    app/ml/                     BKT, IRT, SM-2, ZPD, exercise and practice-game generator
+    app/routes/assistive/       simplify, tts, tutor, annotate, document, heatmap, ...
+    app/routes/learning/        adaptive session API, phonics, spelling, practice games
+    app/services/               simplifier, cognitive load, analytics, personalization, LLM client
+    app/models/                 SQLAlchemy models (SQLite by default)
+  ai-accessibility-assistant-frontend-main/   React 19 + Vite + Tailwind + Zustand
+    src/components/             modes, practice games, accessibility tools
+    src/pages/Dashboard.tsx     progress dashboard
+    src/services/api.js         API client (VITE_API_URL)
+  tests/                        pytest
 ```
-
----
 
 ## Key API endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/health` | Returns `{"status": "ok", "version": "2.0"}` |
-| POST | `/simplify` | Simplify text with Groq LLM |
-| POST | `/assistive/chunk` | Split text into sentence chunks |
-| POST | `/assistive/annotate` | Get per-character phoneme colour annotations |
+| GET | `/health` | `{"status": "ok", "version": "2.0"}` |
+| POST | `/assistive/simplify` | Simplify text, return before/after cognitive load, bullets, definitions, keywords |
+| POST | `/assistive/difficulty-check` | Decide whether a passage needs simplifying for a reader |
+| POST | `/assistive/annotate` | Per-character phoneme colours |
+| POST | `/assistive/tutor` | Ask a question about a passage |
+| POST | `/assistive/document` | Upload PDF/DOCX/TXT |
 | POST | `/api/learning/session/start` | Start an adaptive learning session |
-| POST | `/api/learning/session/{id}/answer` | Submit an answer, get BKT update |
-| GET | `/api/learning/session/{id}/skills` | Get current skill P(know) values |
-| GET | `/api/learning/session/{id}/recommend` | Get next SM-2-scheduled exercise |
+| POST | `/api/learning/session/{id}/answer` | Submit an answer, get the BKT/IRT/SM-2 update |
+| GET | `/api/learning/practice/generate?game_type=` | Next item for a practice game |
+| POST | `/api/learning/practice/evaluate/dictation` | Phonetic-tolerant spelling check |
+| POST | `/analytics/session` | Log a reading session |
+| GET | `/analytics/dashboard/{user_id}` | Dashboard data and insights |
 
 ---
 
@@ -106,28 +121,19 @@ No API key is needed: without `GROQ_API_KEY` the simplifier test uses the rule-b
 | Model | Reference |
 |---|---|
 | **BKT** (Bayesian Knowledge Tracing) | Corbett, A. T., & Anderson, J. R. (1994). Knowledge tracing: Modeling the acquisition of procedural knowledge. *User Modeling and User-Adapted Interaction*, 4(4), 253–278. |
-| **IRT** (Item Response Theory) | Lord, F. M. (1952). *A Theory of Test Scores*. Psychometric Monograph No. 7. Richmond, VA: Psychometric Corporation. |
-| **ZPD** (Zone of Proximal Development) | Vygotsky, L. S. (1978). *Mind in Society: The Development of Higher Psychological Processes*. Cambridge, MA: Harvard University Press. |
-| **Colour overlays** | Wilkins, A. J. (2004). *Reading Through Colour*. London: Wiley. |
-| **SM-2 Spaced Repetition** | Wozniak, P. A. (1987). Optimization of learning. MSc thesis, University of Economics, Poznań. SuperMemo algorithm. |
+| **IRT** (Item Response Theory) | Lord, F. M. (1952). *A Theory of Test Scores*. Psychometric Monograph No. 7. |
+| **ZPD** (Zone of Proximal Development) | Vygotsky, L. S. (1978). *Mind in Society*. Harvard University Press. |
+| **SM-2 spaced repetition** | Wozniak, P. A. (1987). Optimization of learning. MSc thesis, University of Economics, Poznań. |
+| **Colour overlays** | Wilkins, A. J. (2004). *Reading Through Colour*. Wiley. |
 | **Phonological awareness** | Snowling, M. J., & Hulme, C. (2011). Evidence-based interventions for reading and language difficulties. *Journal of Child Psychology and Psychiatry*, 52(4), 381–392. |
-
----
 
 ## Demo path (3 minutes)
 
-1. **00:00** — Open app, complete onboarding (age 8, "Reading words aloud" + "Spelling").
-2. **00:30** — Assistive Mode: paste medical jargon, click Simplify, enable colour overlay + coloured letters + chunk reading, press play, watch TTS highlight each word.
-3. **01:30** — Learning Mode → Adaptive AI tab: answer a phonics exercise, watch the b/d Distinction skill bar animate up, press **J+K** to open Judge Mode with raw BKT JSON.
-4. **02:30** — Practice Mode → AI-Powered Review: complete ~3 exercise queue, see "Next review: in 6 days" (SM-2), view session summary.
-5. **03:00** — Open Accessibility Panel, switch to OpenDyslexic, increase font size to 20px, apply Cream overlay.
-
----
-
-## Repo notes and next steps
-- Deploy the backend (a Render blueprint, `render.yaml`, is in `neuroread-final-main-everyhting`) and set `VITE_API_URL` in the Vercel project so the live site's API features work.
-- Generated TTS audio (`backend/app/static/audio/*.mp3`) and logs are no longer tracked; the audio is regenerated at runtime by gTTS. `Untitled.docx` / `Untitled.txt` are still in the repo.
-- Earlier or alternate snapshots: `NEUROREAD-CAD`, `ai-assistant`, `amdslingshot`, `neuroread-final-main-everyhting`.
+1. Open the app and finish onboarding (age 8, "Reading words aloud" + "Spelling").
+2. Assistive: open the Smart Simplifier, paste a medical paragraph, simplify, compare the before/after scores, turn on dyslexia mode and read it aloud.
+3. Learning → Adaptive AI: answer a few phonics items and watch the b/d skill bar move.
+4. Practice: play Dictation (try "laf" for "laugh") and Word Sorting.
+5. Dashboard: see the logged sessions and the insights.
 
 ## License
 
