@@ -1,8 +1,10 @@
 """Smoke test for all learning endpoints (new standardized format)."""
 import json
+import os
+
 import requests
 
-BASE = "http://127.0.0.1:8001"
+BASE = os.getenv("NEUROREAD_API_URL", "http://127.0.0.1:8000")
 
 
 def post(path, payload, timeout=25):
