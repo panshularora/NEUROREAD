@@ -38,7 +38,7 @@ export default function Navbar({ mode, onModeChange, onNavigate }: { mode: strin
             onModeChange('assistive');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className={`flex items-center gap-3 uppercase text-sm font-medium tracking-[0.5em] hover:opacity-80 transition-opacity cursor-pointer flex-shrink-0 ${isTransparent ? "text-white" : "text-moss"}`}
+          className={`flex items-center gap-3 text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer flex-shrink-0 ${isTransparent ? "text-white" : "text-moss"}`}
         >
           <img src="/neuroread_logo.png" alt="Neuroread Logo" className={`h-8 w-auto object-contain transition-all duration-500 ${isTransparent ? "brightness-0 invert" : ""}`} />
           <span className="hidden sm:inline">N e u r o r e a d</span>
@@ -48,7 +48,7 @@ export default function Navbar({ mode, onModeChange, onNavigate }: { mode: strin
       <div className="flex items-center gap-6">
 
 
-        <div className={`hidden md:flex items-center gap-8 font-medium text-xs tracking-[0.2em] uppercase transition-colors duration-500 ${isTransparent ? "text-white/80" : "text-moss/60"}`}>
+        <div className={`hidden md:flex items-center gap-8 font-medium text-xs transition-colors duration-500 ${isTransparent ? "text-white/80" : "text-moss/60"}`}>
           <a
             href="#assistive-mode-section"
             onClick={(e) => {

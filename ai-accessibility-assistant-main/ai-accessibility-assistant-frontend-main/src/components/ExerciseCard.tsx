@@ -191,7 +191,7 @@ export default function ExerciseCard({ exercise, onAnswer, disabled, feedback }:
       {/* Skill badge */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <span style={{
-          fontSize: 11, fontWeight: 700, textTransform: 'uppercase',
+          fontSize: 11, fontWeight: 700, 
           letterSpacing: '0.1em', color: '#2d6a4f',
           background: 'rgba(45,106,79,0.08)', padding: '4px 10px', borderRadius: 20,
         }}>

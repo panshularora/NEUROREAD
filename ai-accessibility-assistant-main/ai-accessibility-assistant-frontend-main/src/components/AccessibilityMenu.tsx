@@ -5,7 +5,7 @@ const AccessibilityMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [fontSize, setFontSize] = useState(() => Number(localStorage.getItem('fontSize')) || 0);
   const [letterSpacing, setLetterSpacing] = useState(() => Number(localStorage.getItem('letterSpacing')) || 0);
-  const [lineSpacing, setLineSpacing] = useState(() => Number(localStorage.getItem('lineSpacing')) || 1.5);
+  const [lineSpacing, setLineSpacing] = useState(() => Number(localStorage.getItem('lineSpacing')) || 1.6);
   const [fontFamily, setFontFamily] = useState(() => localStorage.getItem('fontFamily') || 'default');
   const [theme, setTheme] = useState(() => localStorage.getItem('theme-style') || 'beige');
 
@@ -82,7 +82,7 @@ const AccessibilityMenu = () => {
               <div className="space-y-10">
                 {/* 1. Typography Selection */}
                 <section>
-                  <label className="text-xs font-mono uppercase tracking-widest text-text-muted mb-4 block">Dyslexia-Friendly Font</label>
+                  <label className="text-xs text-text-muted mb-4 block">Dyslexia-Friendly Font</label>
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={() => setFontFamily('default')}
@@ -103,7 +103,7 @@ const AccessibilityMenu = () => {
                 <section className="space-y-6">
                   <div>
                     <div className="flex justify-between mb-4">
-                      <label className="text-xs font-mono uppercase tracking-widest text-text-muted">Text Size</label>
+                      <label className="text-xs text-text-muted">Text Size</label>
                       <span className="text-xs bg-clay/10 text-clay px-2 py-0.5 rounded-full">{fontSize > 0 ? `+${fontSize}` : fontSize}</span>
                     </div>
                     <input
@@ -119,7 +119,7 @@ const AccessibilityMenu = () => {
 
                   <div>
                     <div className="flex justify-between mb-4">
-                      <label className="text-xs font-mono uppercase tracking-widest text-text-muted">Letter Spacing</label>
+                      <label className="text-xs text-text-muted">Letter Spacing</label>
                       <span className="text-xs bg-moss/10 text-moss px-2 py-0.5 rounded-full">{letterSpacing > 0 ? `+${letterSpacing}` : letterSpacing}</span>
                     </div>
                     <input
@@ -135,7 +135,7 @@ const AccessibilityMenu = () => {
 
                   <div>
                     <div className="flex justify-between mb-4">
-                      <label className="text-xs font-mono uppercase tracking-widest text-text-muted">Line Spacing</label>
+                      <label className="text-xs text-text-muted">Line Spacing</label>
                       <span className="text-xs bg-moss/10 text-moss px-2 py-0.5 rounded-full">{lineSpacing}x</span>
                     </div>
                     <input
@@ -152,7 +152,7 @@ const AccessibilityMenu = () => {
 
                 {/* 3. Themes */}
                 <section>
-                  <label className="text-xs font-mono uppercase tracking-widest text-text-muted mb-4 block">Color Theme</label>
+                  <label className="text-xs text-text-muted mb-4 block">Color Theme</label>
                   <div className="grid grid-cols-2 gap-3">
                     {themes.map((t) => (
                       <button
@@ -181,7 +181,7 @@ const AccessibilityMenu = () => {
                   onClick={() => {
                     setFontSize(0);
                     setLetterSpacing(0);
-                    setLineSpacing(1.5);
+                    setLineSpacing(1.6);
                     setFontFamily('default');
                     setTheme('beige');
                     document.documentElement.classList.remove('dark');

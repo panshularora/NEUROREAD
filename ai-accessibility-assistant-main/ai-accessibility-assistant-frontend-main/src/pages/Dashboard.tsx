@@ -126,7 +126,7 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (mode: string) 
         {/* Left Column: Insights & Actions */}
         <div className="lg:col-span-2 space-y-8">
           
-          <div className="bg-white rounded-[3rem] p-10 border border-moss/5 shadow-[0_8px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
+          <div className="bg-white rounded-3xl p-10 border border-moss/5 shadow-[0_8px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
             <h3 className="text-2xl font-bold text-moss mb-6 flex items-center gap-3">
               <span className="iconify text-clay text-3xl" data-icon="solar:lightbulb-minimalistic-bold-duotone" />
               AI Insights
@@ -175,9 +175,9 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (mode: string) 
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-             <div onClick={() => onNavigate?.('practice')} className="bg-moss rounded-[2.5rem] p-8 border border-moss shadow-[0_8px_20px_rgba(46,64,54,0.15)] hover:-translate-y-1 transition-all duration-300 text-white cursor-pointer group">
+             <div onClick={() => onNavigate?.('practice')} className="bg-moss rounded-3xl p-8 border border-moss shadow-[0_8px_20px_rgba(46,64,54,0.15)] hover:-translate-y-1 transition-all duration-300 text-white cursor-pointer group">
                 <div className="flex justify-between items-start mb-6">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/50 block">Action</span>
+                  <span className="text-xs font-bold text-white/50 block">Action</span>
                   <span className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-moss transition-colors">
                     <span className="iconify text-xl" data-icon="solar:magic-stick-3-bold" />
                   </span>
@@ -186,9 +186,9 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (mode: string) 
                 <p className="text-white/70 text-sm">Jump directly into a 5-minute targeted phonics session to boost fluency.</p>
              </div>
              
-             <div onClick={() => onNavigate?.('assistive')} className="bg-clay rounded-[2.5rem] p-8 border border-clay shadow-[0_8px_20px_rgba(198,107,68,0.15)] hover:-translate-y-1 transition-all duration-300 text-white cursor-pointer group">
+             <div onClick={() => onNavigate?.('assistive')} className="bg-clay rounded-3xl p-8 border border-clay shadow-[0_8px_20px_rgba(198,107,68,0.15)] hover:-translate-y-1 transition-all duration-300 text-white cursor-pointer group">
                 <div className="flex justify-between items-start mb-6">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/50 block">Action</span>
+                  <span className="text-xs font-bold text-white/50 block">Action</span>
                   <span className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-clay transition-colors">
                     <span className="iconify text-xl" data-icon="solar:settings-bold" />
                   </span>
@@ -199,7 +199,7 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (mode: string) 
           </div>
 
           {/* Session History */}
-          <div className="bg-white rounded-[3rem] p-10 border border-moss/5 shadow-[0_8px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
+          <div className="bg-white rounded-3xl p-10 border border-moss/5 shadow-[0_8px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
             <h3 className="text-2xl font-bold text-moss mb-6 flex items-center gap-3">
               <span className="iconify text-clay text-3xl" data-icon="solar:history-bold-duotone" />
               Recent Sessions
@@ -216,19 +216,19 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (mode: string) 
                     </div>
                     <div className="flex gap-6 text-sm font-medium">
                       <div className="flex flex-col items-center">
-                        <span className="text-gray-400 text-xs uppercase tracking-wider mb-1">Time</span>
+                        <span className="text-gray-400 text-xs mb-1">Time</span>
                         <span className="text-moss">{Number(session.reading_time).toFixed(1)}m</span>
                       </div>
                       <div className="flex flex-col items-center">
-                        <span className="text-gray-400 text-xs uppercase tracking-wider mb-1">Errors</span>
+                        <span className="text-gray-400 text-xs mb-1">Errors</span>
                         <span className="text-orange-500">{session.errors || 0}</span>
                       </div>
                       <div className="flex flex-col items-center">
-                        <span className="text-gray-400 text-xs uppercase tracking-wider mb-1">Pauses</span>
+                        <span className="text-gray-400 text-xs mb-1">Pauses</span>
                         <span className="text-blue-500">{session.pauses || 0}</span>
                       </div>
                       <div className="flex flex-col items-center">
-                        <span className="text-gray-400 text-xs uppercase tracking-wider mb-1">Load</span>
+                        <span className="text-gray-400 text-xs mb-1">Load</span>
                         <span className="text-clay">{Number(session.cognitive_load).toFixed(0)}</span>
                       </div>
                     </div>
@@ -244,7 +244,7 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (mode: string) 
         {/* Right Column: Trending & User */}
         <div className="space-y-8">
           {/* Trend chart card (tertiary) */}
-          <div className="bg-white rounded-[2.5rem] p-8 border border-moss/5 shadow-[0_8px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1 transition-all">
+          <div className="bg-white rounded-3xl p-8 border border-moss/5 shadow-[0_8px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1 transition-all">
             <h3 className="text-lg font-bold text-moss mb-6 flex items-center gap-2">
               <span className="iconify text-clay" data-icon="solar:graph-bold-duotone" />
               Cognitive Load Trend
@@ -268,15 +268,15 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (mode: string) 
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <div className="mt-4 flex justify-between items-center text-xs font-bold uppercase tracking-widest">
+            <div className="mt-4 flex justify-between items-center text-xs font-bold">
               <span className="text-text-muted">Avg Load: <span className="text-moss">{data?.avg_cognitive_load ?? '—'}</span></span>
               <span className="text-moss bg-moss/10 px-3 py-1 rounded-full">Healthy</span>
             </div>
           </div>
 
           {/* User Settings */}
-          <div className="bg-moss/5 rounded-[2.5rem] p-8 border border-moss/10">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-text-muted mb-4">Experience Sync</h4>
+          <div className="bg-moss/5 rounded-3xl p-8 border border-moss/10">
+            <h4 className="text-xs font-bold text-text-muted mb-4">Experience Sync</h4>
             <div className="space-y-4">
               <input
                 value={userId}
@@ -294,7 +294,7 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (mode: string) 
           </div>
 
           {/* Supportive Footer */}
-          <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-lg shadow-blue-900/20">
+          <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl p-8 text-white relative overflow-hidden shadow-lg shadow-blue-900/20">
             <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none" />
             <h4 className="text-2xl font-bold mb-3 relative z-10">You're doing great, {userId.split('-')[0]}!</h4>
             <p className="text-sm text-white/80 leading-relaxed relative z-10 font-medium tracking-wide">

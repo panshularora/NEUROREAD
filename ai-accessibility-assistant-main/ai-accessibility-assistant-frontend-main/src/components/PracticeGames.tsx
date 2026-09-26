@@ -23,7 +23,7 @@ export const DictationGame = ({ data, onComplete }) => {
   };
 
   return (
-    <div className="p-8 text-center bg-white rounded-[2rem] min-h-[300px] flex flex-col items-center justify-center border border-moss/10 shadow-sm">
+    <div className="p-8 text-center bg-white rounded-3xl min-h-[300px] flex flex-col items-center justify-center border border-moss/10 shadow-sm">
       <h3 className="text-2xl font-bold text-moss mb-4">Dictation Game</h3>
       <button 
         type="button" 
@@ -53,7 +53,7 @@ export const DictationGame = ({ data, onComplete }) => {
 export const ErrorCorrectionGame = ({ data, onComplete }) => {
   if (!data) return null;
   return (
-    <div className="p-8 text-center bg-white rounded-[2rem] min-h-[300px] flex flex-col items-center justify-center border border-moss/10 shadow-sm">
+    <div className="p-8 text-center bg-white rounded-3xl min-h-[300px] flex flex-col items-center justify-center border border-moss/10 shadow-sm">
       <h3 className="text-2xl font-bold text-moss mb-4">Fix the Error</h3>
       <p className="mb-8 font-medium text-2xl px-4 py-3 bg-gray-50 rounded-xl border border-gray-100">
         {data.sentence.replace('____', `[ ${data.incorrect} ]`)}
@@ -95,7 +95,7 @@ export const WordSortingGame = ({ data, onComplete }) => {
   };
 
   return (
-    <div className="p-8 text-center bg-white rounded-[2rem] min-h-[300px] flex flex-col items-center justify-center border border-blue-100 shadow-sm">
+    <div className="p-8 text-center bg-white rounded-3xl min-h-[300px] flex flex-col items-center justify-center border border-blue-100 shadow-sm">
       <h3 className="text-2xl font-bold text-blue-600 mb-2">Word Sorting Game</h3>
       <p className="mb-8 text-charcoal/60">Where does this word belong?</p>
       
@@ -121,7 +121,7 @@ export const WordSortingGame = ({ data, onComplete }) => {
 export const SyllableTappingGame = ({ data, onComplete }) => {
   if (!data) return null;
   return (
-    <div className="p-8 text-center bg-white rounded-[2rem] min-h-[300px] flex flex-col items-center justify-center border border-purple-100 shadow-sm">
+    <div className="p-8 text-center bg-white rounded-3xl min-h-[300px] flex flex-col items-center justify-center border border-purple-100 shadow-sm">
       <h3 className="text-2xl font-bold text-purple-600 mb-2">Syllable Tapping</h3>
       <p className="mb-8 font-medium text-charcoal/60">How many syllables (beats) in this word?</p>
       <div className="text-5xl font-bold text-charcoal mb-10 capitalize tracking-wide">{data.word}</div>
@@ -153,7 +153,7 @@ export const WordChainsGame = ({ data, onComplete }) => {
   };
 
   return (
-    <div className="p-8 text-center bg-white rounded-[2rem] min-h-[300px] flex flex-col items-center justify-center border border-orange-100 shadow-sm">
+    <div className="p-8 text-center bg-white rounded-3xl min-h-[300px] flex flex-col items-center justify-center border border-orange-100 shadow-sm">
       <h3 className="text-2xl font-bold text-orange-500 mb-4">Word Chains</h3>
       <p className="mb-8 text-charcoal/60 font-medium">Change one letter at a time to complete the chain.</p>
       
@@ -215,7 +215,7 @@ export const SentenceReconstructionGame = ({ data, onComplete }) => {
   if (!data) return null;
 
   return (
-    <div className="p-8 text-center bg-white rounded-[2rem] min-h-[300px] flex flex-col items-center justify-center border border-green-100 shadow-sm w-full">
+    <div className="p-8 text-center bg-white rounded-3xl min-h-[300px] flex flex-col items-center justify-center border border-green-100 shadow-sm w-full">
       <h3 className="text-2xl font-bold text-green-600 mb-4">Sentence Builder</h3>
       <p className="mb-6 font-medium text-charcoal/60">Tap the words in the correct order to build a sentence.</p>
       
@@ -245,7 +245,7 @@ export const SentenceReconstructionGame = ({ data, onComplete }) => {
 export const RhymeFinderGame = ({ data, onComplete }) => {
   if (!data) return null;
   return (
-    <div className="p-8 text-center bg-white rounded-[2rem] min-h-[300px] flex flex-col items-center justify-center border border-pink-100 shadow-sm">
+    <div className="p-8 text-center bg-white rounded-3xl min-h-[300px] flex flex-col items-center justify-center border border-pink-100 shadow-sm">
       <h3 className="text-2xl font-bold text-pink-600 mb-2">Rhyme Finder</h3>
       <p className="mb-8 font-medium text-charcoal/60">Find a word that rhymes with:</p>
       <div className="text-5xl font-bold text-charcoal mb-8">{data.target}</div>
@@ -285,7 +285,7 @@ export const FlashcardsGame = ({ data, onComplete }) => {
   };
 
   return (
-    <div className="p-8 text-center bg-white rounded-[2rem] min-h-[300px] flex flex-col items-center justify-center border border-yellow-100 shadow-sm">
+    <div className="p-8 text-center bg-white rounded-3xl min-h-[300px] flex flex-col items-center justify-center border border-yellow-100 shadow-sm">
       <h3 className="text-2xl font-bold text-yellow-600 mb-2">Speed Flashcards</h3>
       <p className="mb-8 font-medium text-charcoal/60">{showWord ? 'Look quickly!' : 'Type what you saw.'}</p>
       
@@ -314,7 +314,7 @@ export const FlashcardsGame = ({ data, onComplete }) => {
 export const HomophonesGame = ({ data, onComplete }) => {
   if (!data) return null;
   return (
-    <div className="p-8 text-center bg-white rounded-[2rem] min-h-[300px] flex flex-col items-center justify-center border border-teal-100 shadow-sm">
+    <div className="p-8 text-center bg-white rounded-3xl min-h-[300px] flex flex-col items-center justify-center border border-teal-100 shadow-sm">
       <h3 className="text-2xl font-bold text-teal-600 mb-4">Homophone Spotter</h3>
       <p className="mb-8 font-medium text-2xl text-charcoal max-w-xl leading-relaxed">
         {data.sentence.split('____').map((part, i, arr) => (

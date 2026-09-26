@@ -10,7 +10,7 @@ function Bar({ heightPct, label, colorClass, title }) {
         style={{ height: `${Math.min(100, Math.max(5, heightPct))}%` }}
         title={title}
       />
-      <span className="text-[9px] text-charcoal/40 truncate w-full text-center">{label}</span>
+      <span className="text-xs text-charcoal/40 truncate w-full text-center">{label}</span>
     </div>
   );
 }
@@ -87,7 +87,7 @@ export default function History({ userId }) {
       <div className="max-w-5xl mx-auto px-6">
         <div className="flex items-start justify-between mb-12 flex-wrap gap-4">
           <div>
-            <span className="font-mono text-xs text-moss uppercase tracking-wider block mb-3">Your Progress</span>
+            <span className=" text-xs text-moss block mb-3">Your Progress</span>
             <h2 className="md:text-5xl text-charcoal text-4xl font-medium tracking-tight">Session History</h2>
             <p className="text-charcoal/50 text-sm mt-2">Past reading sessions and cognitive improvement over time.</p>
           </div>
@@ -111,8 +111,8 @@ export default function History({ userId }) {
           </div>
         </div>
 
-        <div className="bg-white border border-moss/10 rounded-[2rem] p-6 mb-8">
-          <p className="text-[10px] font-medium text-charcoal/40 uppercase tracking-wider mb-4">
+        <div className="bg-white border border-moss/10 rounded-3xl p-6 mb-8">
+          <p className="text-xs font-medium text-charcoal/40 mb-4">
             Cognitive Score Over Time
           </p>
           <div className="flex items-end gap-2 h-20">
@@ -186,19 +186,19 @@ export default function History({ userId }) {
                 <div className={`history-row-body ${isOpen ? 'open' : ''}`}>
                   <div className="grid grid-cols-4 gap-4 mb-4">
                     <div className="bg-moss/5 rounded-xl p-3 text-center">
-                      <p className="text-[10px] text-charcoal/40 uppercase tracking-wider mb-1">Time</p>
+                      <p className="text-xs text-charcoal/40 mb-1">Time</p>
                       <p className="text-lg font-medium text-charcoal">{Number(s.reading_time).toFixed(1)}m</p>
                     </div>
                     <div className="bg-clay/8 rounded-xl p-3 text-center">
-                      <p className="text-[10px] text-charcoal/40 uppercase tracking-wider mb-1">Errors</p>
+                      <p className="text-xs text-charcoal/40 mb-1">Errors</p>
                       <p className="text-lg font-medium text-clay">{s.errors}</p>
                     </div>
                     <div className="bg-moss/5 rounded-xl p-3 text-center">
-                      <p className="text-[10px] text-charcoal/40 uppercase tracking-wider mb-1">Pauses</p>
+                      <p className="text-xs text-charcoal/40 mb-1">Pauses</p>
                       <p className="text-lg font-medium text-moss">{s.pauses}</p>
                     </div>
                     <div className="bg-moss/5 rounded-xl p-3 text-center">
-                      <p className="text-[10px] text-charcoal/40 uppercase tracking-wider mb-1">Load</p>
+                      <p className="text-xs text-charcoal/40 mb-1">Load</p>
                       <p className="text-lg font-medium text-charcoal">{Math.round(s.cognitive_load)}</p>
                     </div>
                   </div>

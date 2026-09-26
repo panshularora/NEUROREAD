@@ -79,7 +79,7 @@ export default function LearningMode({ active }: { active: boolean }) {
         ))}
       </div>
 
-      <div className="bg-white rounded-[3rem] p-10 shadow-sm border border-moss/5 min-h-[500px] relative overflow-hidden transition-all duration-500">
+      <div className="bg-white rounded-3xl p-10 shadow-sm border border-moss/5 min-h-[500px] relative overflow-hidden transition-all duration-500">
         <div className="absolute top-0 right-0 w-64 h-64 bg-moss/5 rounded-full -mr-32 -mt-32 blur-3xl opacity-50" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-clay/5 rounded-full -ml-32 -mb-32 blur-3xl opacity-50" />
 
@@ -212,11 +212,11 @@ function AdaptiveLearningSection({ userId }: { userId: string }) {
       {/* Stats row */}
       <div className="flex gap-4 mb-8 flex-wrap">
         <div className="px-4 py-2 bg-moss/5 rounded-xl">
-          <span className="text-xs text-moss/60 font-medium uppercase">Correct</span>
+          <span className="text-xs text-moss/60 font-medium">Correct</span>
           <div className="font-bold text-moss">{stats.correct}/{stats.total}</div>
         </div>
         <div className="px-4 py-2 bg-clay/5 rounded-xl">
-          <span className="text-xs text-clay/60 font-medium uppercase">Best Streak</span>
+          <span className="text-xs text-clay/60 font-medium">Best Streak</span>
           <div className="font-bold text-clay">{stats.longest_streak} 🔥</div>
         </div>
       </div>
@@ -433,7 +433,7 @@ function ReadAlongSection({ userId, selectedStoryId, onSelectStory }: { userId: 
         </div>
         <div className="flex items-center gap-4 bg-moss/5 p-2 rounded-2xl border border-moss/10">
           <div className="flex flex-col items-end px-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-moss/40">Speed</span>
+            <span className="text-xs font-bold text-moss/40">Speed</span>
             <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))}
               className="bg-transparent text-xs font-bold text-moss focus:outline-none">
               <option value={600}>Slow</option>
@@ -448,7 +448,7 @@ function ReadAlongSection({ userId, selectedStoryId, onSelectStory }: { userId: 
         </div>
       </div>
 
-      <div className="bg-blue-50/30 p-12 rounded-[3.5rem] border border-blue-100 shadow-inner mb-8 leading-[2.5] min-h-[300px]">
+      <div className="bg-blue-50/30 p-12 rounded-3xl border border-blue-100 shadow-inner mb-8 leading-[2.5] min-h-[300px]">
         <div className="flex flex-wrap gap-x-2 gap-y-1">
           {words.map((word, idx) => (
             <span
@@ -470,7 +470,7 @@ function ReadAlongSection({ userId, selectedStoryId, onSelectStory }: { userId: 
 
       <div className="flex justify-end">
         <button onClick={() => { setIsPlaying(false); setCurrentWordIdx(-1); }}
-          className="text-xs font-bold uppercase tracking-widest text-clay hover:underline">
+          className="text-xs font-bold text-clay hover:underline">
           Reset Story
         </button>
       </div>
@@ -499,7 +499,7 @@ function PhonicsLabSection({ userId }: { userId: string }) {
           <h3 className="text-3xl font-medium text-moss mb-6">Phonics Lab</h3>
           <p className="text-text-muted mb-10 leading-relaxed">Explore letters and their sounds with visual and auditory feedback.</p>
           <div className="space-y-6">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-moss/40">Alphabet Explorer</h4>
+            <h4 className="text-xs font-bold text-moss/40">Alphabet Explorer</h4>
             <div className="grid grid-cols-6 gap-2">
               {LETTERS.map((l, idx) => (
                 <button key={l} onClick={() => setLetterIdx(idx)}
@@ -513,7 +513,7 @@ function PhonicsLabSection({ userId }: { userId: string }) {
           </div>
         </div>
 
-        <div className="bg-green-50/50 rounded-[3rem] p-10 border border-green-100 flex flex-col items-center justify-center min-h-[400px]">
+        <div className="bg-green-50/50 rounded-3xl p-10 border border-green-100 flex flex-col items-center justify-center min-h-[400px]">
           {flashcard ? (
             <div className="text-center space-y-8 w-full">
               <div className="relative inline-block">
@@ -588,7 +588,7 @@ function StoryModeSection({ userId, selectedStoryId, onSelectStory }: { userId: 
             
             <div className="flex flex-wrap gap-2 mb-3">
               {story.tags.map(tag => (
-                <span key={tag.label} className={`text-[10px] font-bold px-2.5 py-1 rounded-full tracking-wide ${getTagColor(tag.type)}`}>
+                <span key={tag.label} className={`text-xs font-bold px-2.5 py-1 rounded-full tracking-wide ${getTagColor(tag.type)}`}>
                   {tag.label}
                 </span>
               ))}

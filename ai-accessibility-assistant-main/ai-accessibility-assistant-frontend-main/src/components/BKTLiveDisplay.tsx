@@ -115,7 +115,7 @@ export default function BKTLiveDisplay({
         </div>
         {judgeMode && (
           <span style={{
-            fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+            fontSize: 10, fontWeight: 700, 
             letterSpacing: '0.12em', padding: '3px 8px', borderRadius: 6,
             background: '#FF1744', color: '#fff',
           }}>

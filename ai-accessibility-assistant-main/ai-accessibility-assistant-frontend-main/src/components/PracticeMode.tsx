@@ -69,7 +69,7 @@ const PracticeMode = ({ active }) => {
             <p className="text-moss font-bold text-xl tracking-tight">Generating practice data...</p>
           </div>
         ) : feedback ? (
-          <div className={`max-w-xl mx-auto p-16 rounded-[3rem] text-center shadow-2xl animate-in zoom-in border-4 ${feedback.correct ? 'bg-green-50 border-green-200' : 'bg-orange-50 border-orange-200'}`}>
+          <div className={`max-w-xl mx-auto p-16 rounded-3xl text-center shadow-2xl animate-in zoom-in border-4 ${feedback.correct ? 'bg-green-50 border-green-200' : 'bg-orange-50 border-orange-200'}`}>
             <i className="not-italic block"><span className={`iconify text-[80px] mb-8 ${feedback.correct ? 'text-green-500' : 'text-orange-500'}`} data-icon={feedback.correct ? "solar:check-circle-bold-duotone" : "solar:close-circle-bold-duotone"} /></i>
             <h3 className={`text-4xl font-bold mb-6 tracking-tight ${feedback.correct ? 'text-green-700' : 'text-orange-700'}`}>
               {feedback.correct ? 'Excellent Job!' : 'Not Quite!'}
@@ -117,7 +117,7 @@ const PracticeMode = ({ active }) => {
         {PRACTICE_MODES.map((mode, i) => (
           <div key={mode.id} onClick={() => startGame(mode.id)}
             style={{ animationDelay: `${i * 50}ms` }}
-            className={`bg-white p-8 rounded-[2rem] border border-moss/10 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all cursor-pointer group animate-in zoom-in fade-in fill-mode-both`}>
+            className={`bg-white p-8 rounded-3xl border border-moss/10 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all cursor-pointer group animate-in zoom-in fade-in fill-mode-both`}>
             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-all ${mode.bg} ${mode.color}`}>
               <span className="iconify text-4xl" data-icon={mode.icon} />
             </div>

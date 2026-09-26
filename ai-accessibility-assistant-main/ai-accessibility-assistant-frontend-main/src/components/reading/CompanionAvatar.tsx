@@ -70,7 +70,7 @@ export default function CompanionAvatar({ text }) {
               type="button"
               onClick={run}
               disabled={companionAsync.loading || !text?.trim()}
-              className="px-4 py-2 rounded-xl bg-clay text-cream text-xs font-medium uppercase tracking-wide disabled:opacity-60"
+              className="px-4 py-2 rounded-xl bg-clay text-cream text-xs font-medium tracking-wide disabled:opacity-60"
             >
               {companionAsync.loading ? '…' : 'Go'}
             </button>
@@ -85,7 +85,7 @@ export default function CompanionAvatar({ text }) {
                 {suggestions.map((s) => (
                   <span
                     key={s}
-                    className="text-[11px] px-3 py-1 rounded-full bg-moss/8 text-moss border border-moss/15 font-medium"
+                    className="text-xs px-3 py-1 rounded-full bg-moss/8 text-moss border border-moss/15 font-medium"
                   >
                     {s}
                   </span>

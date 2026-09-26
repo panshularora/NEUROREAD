@@ -102,25 +102,25 @@ export default function App() {
       <section id="impact" className="py-24 relative z-20 rounded-t-[3rem] -mt-10 overflow-hidden bg-white/20 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-20">
-            <span className="font-mono text-xs text-moss uppercase tracking-wider block mb-3">Our Vision</span>
+            <span className=" text-xs text-moss block mb-3">Our Vision</span>
             <h2 className="md:text-5xl text-charcoal text-4xl font-medium tracking-tight max-w-2xl">
               Calm, Structured, and Personalized Learning
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="impact-card border border-moss/10 rounded-[2.5rem] p-8 md:p-10 bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-md">
+            <div className="impact-card border border-moss/10 rounded-3xl p-8 md:p-10 bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-md">
               <h3 className="font-medium text-2xl tracking-tight text-charcoal mb-4">Focus Mode</h3>
               <p className="text-charcoal/70 text-base leading-relaxed">
                 Clean interfaces designed to reduce cognitive load and prioritize reading comprehension.
               </p>
             </div>
-            <div className="impact-card border border-moss/10 rounded-[2.5rem] p-8 md:p-10 bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-md">
+            <div className="impact-card border border-moss/10 rounded-3xl p-8 md:p-10 bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-md">
               <h3 className="font-medium text-2xl tracking-tight text-charcoal mb-4">AI Tutor</h3>
               <p className="text-charcoal/70 text-base leading-relaxed">
                 An emotionally supportive reading companion that simplifies logic on the fly.
               </p>
             </div>
-            <div className="impact-card border border-moss/10 rounded-[2.5rem] p-8 md:p-10 bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-md">
+            <div className="impact-card border border-moss/10 rounded-3xl p-8 md:p-10 bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-md">
               <h3 className="font-medium text-2xl tracking-tight text-charcoal mb-4">Progress</h3>
               <p className="text-charcoal/70 text-base leading-relaxed">
                 Track phonics and memory milestones with actionable daily recommendations.

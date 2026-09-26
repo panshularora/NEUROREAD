@@ -248,7 +248,7 @@ export default function SimplifierModal({
 
             <div className="grid grid-cols-2 gap-3 mb-2">
               <div>
-                <label className="text-[10px] font-medium text-charcoal/50 uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-medium text-charcoal/50 block mb-1.5">
                   User ID
                 </label>
                 <input
@@ -259,7 +259,7 @@ export default function SimplifierModal({
                 />
               </div>
               <div>
-                <label className="text-[10px] font-medium text-charcoal/50 uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-medium text-charcoal/50 block mb-1.5">
                   Reading Profile
                 </label>
                 <select
@@ -274,10 +274,10 @@ export default function SimplifierModal({
                 </select>
               </div>
             </div>
-            <p className="text-[11px] text-charcoal/40 mb-5">Used to fetch your long-term cognitive progress.</p>
+            <p className="text-xs text-charcoal/40 mb-5">Used to fetch your long-term cognitive progress.</p>
 
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-[10px] font-medium text-charcoal/50 uppercase tracking-wider block">
+              <label className="text-xs font-medium text-charcoal/50 block">
                 Text to Simplify
               </label>
             </div>
@@ -349,7 +349,7 @@ export default function SimplifierModal({
                 type="button"
                 onClick={onRunSimplifier}
                 disabled={loading}
-                className="magnetic-btn px-6 py-2.5 rounded-full bg-clay text-cream text-xs font-medium uppercase tracking-wide disabled:opacity-70"
+                className="magnetic-btn px-6 py-2.5 rounded-full bg-clay text-cream text-xs font-medium tracking-wide disabled:opacity-70"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -364,7 +364,7 @@ export default function SimplifierModal({
 
             <div className="flex items-center justify-between mt-3 flex-wrap gap-3">
               <div className="flex items-center gap-2">
-                <label className="text-[10px] font-medium text-charcoal/50 uppercase tracking-wider">
+                <label className="text-xs font-medium text-charcoal/50">
                   Rewrite mode
                 </label>
                 <select
@@ -389,7 +389,7 @@ export default function SimplifierModal({
                     setRewrites([]);
                   }
                 }}
-                className="px-5 py-2.5 rounded-full bg-moss text-cream text-xs font-medium uppercase tracking-wide disabled:opacity-60"
+                className="px-5 py-2.5 rounded-full bg-moss text-cream text-xs font-medium tracking-wide disabled:opacity-60"
               >
                 {rewriteAsync.loading ? 'Rewriting…' : 'Rewrite'}
               </button>
@@ -397,11 +397,11 @@ export default function SimplifierModal({
 
             <div className="mt-6 border border-moss/10 rounded-2xl overflow-hidden">
               <div className="flex items-center justify-between px-5 py-3 bg-white border-b border-moss/8">
-                <h4 className="text-xs font-medium text-charcoal uppercase tracking-wider">Adapted Reading View</h4>
+                <h4 className="text-xs font-medium text-charcoal">Adapted Reading View</h4>
                 <button
                   type="button"
                   onClick={onToggleDyslexia}
-                  className={`text-[10px] px-3 py-1 rounded-full bg-moss/8 text-moss font-medium hover:bg-moss hover:text-cream transition-all ${
+                  className={`text-xs px-3 py-1 rounded-full bg-moss/8 text-moss font-medium hover:bg-moss hover:text-cream transition-all ${
                     dyslexiaOn ? 'bg-moss text-cream' : ''
                   }`}
                 >
@@ -409,7 +409,7 @@ export default function SimplifierModal({
                 </button>
               </div>
               <div className="px-5 py-4 bg-white">
-                <p className="text-[10px] font-medium text-charcoal/40 uppercase tracking-wider mb-3">Simplified Content</p>
+                <p className="text-xs font-medium text-charcoal/40 mb-3">Simplified Content</p>
                 {loading ? (
                   <div className="min-h-[80px] rounded-xl bg-moss/6 border border-moss/10 px-5 py-4">
                     <div className="shimmer w-full" />
@@ -449,11 +449,11 @@ export default function SimplifierModal({
             {rewrites?.length ? (
               <div className="mt-5 border border-moss/10 rounded-2xl bg-white p-5">
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-medium text-charcoal uppercase tracking-wider">Rewrite Suggestions</h4>
+                  <h4 className="text-xs font-medium text-charcoal">Rewrite Suggestions</h4>
                   <button
                     type="button"
                     onClick={() => setRewrites([])}
-                    className="text-[10px] px-3 py-1 rounded-full bg-moss/8 text-moss font-medium hover:bg-moss hover:text-cream transition-all"
+                    className="text-xs px-3 py-1 rounded-full bg-moss/8 text-moss font-medium hover:bg-moss hover:text-cream transition-all"
                   >
                     Clear
                   </button>
@@ -461,9 +461,9 @@ export default function SimplifierModal({
                 <div className="space-y-4">
                   {rewrites.map((r, i) => (
                     <div key={`${i}-${r.original || ''}`} className="rounded-xl border border-moss/10 bg-moss/[0.03] p-4">
-                      <p className="text-[11px] font-medium text-charcoal/50 uppercase tracking-wider mb-1">Original</p>
+                      <p className="text-xs font-medium text-charcoal/50 mb-1">Original</p>
                       <p className="text-sm text-charcoal/70 leading-relaxed">{r.original}</p>
-                      <p className="text-[11px] font-medium text-charcoal/50 uppercase tracking-wider mt-3 mb-1">Rewritten</p>
+                      <p className="text-xs font-medium text-charcoal/50 mt-3 mb-1">Rewritten</p>
                       <p className="text-sm text-charcoal leading-relaxed">{r.rewritten}</p>
                       <p className="text-xs text-charcoal/60 mt-2">{r.explanation}</p>
                     </div>
@@ -479,7 +479,7 @@ export default function SimplifierModal({
 
             {audioOn ? (
               <div className="rounded-2xl bg-white border border-moss/10 p-5 mb-4">
-                <p className="text-[10px] font-medium text-charcoal/40 uppercase tracking-wider mb-3">Audio (TTS)</p>
+                <p className="text-xs font-medium text-charcoal/40 mb-3">Audio (TTS)</p>
                 {ttsAsync.loading ? (
                   <p className="text-xs text-charcoal/50">Generating audio…</p>
                 ) : ttsUrl ? (
@@ -491,7 +491,7 @@ export default function SimplifierModal({
             ) : null}
 
             <div className="rounded-2xl bg-white border border-moss/10 p-5 mb-4">
-              <p className="text-[10px] font-medium text-charcoal/40 uppercase tracking-wider mb-3">Cognitive Score</p>
+              <p className="text-xs font-medium text-charcoal/40 mb-3">Cognitive Score</p>
               <div className="flex items-center justify-between">
                 <div className={scoreBadgeClass}>{(metrics?.difficulty || 'PENDING').toUpperCase?.() || 'PENDING'}</div>
                 <div className="flex items-baseline gap-1">
@@ -511,7 +511,7 @@ export default function SimplifierModal({
               <div className="rounded-2xl bg-clay/8 border border-clay/15 p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="iconify text-charcoal/60" data-icon="solar:clock-circle-linear" style={{ width: '1rem', height: '1rem' }} />
-                  <span className="text-[10px] font-medium text-charcoal/50 uppercase tracking-wider">Reading Time</span>
+                  <span className="text-xs font-medium text-charcoal/50">Reading Time</span>
                 </div>
                 <p className="text-xl font-medium text-charcoal mt-1">{metrics?.readingTime ?? '—'}</p>
                 <div className="w-6 h-0.5 bg-charcoal/20 mt-2 rounded-full" />
@@ -519,7 +519,7 @@ export default function SimplifierModal({
               <div className="rounded-2xl bg-clay/8 border border-clay/15 p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="iconify text-charcoal/60" data-icon="solar:graph-linear" style={{ width: '1rem', height: '1rem' }} />
-                  <span className="text-[10px] font-medium text-charcoal/50 uppercase tracking-wider">Difficulty</span>
+                  <span className="text-xs font-medium text-charcoal/50">Difficulty</span>
                 </div>
                 <p className="text-xl font-medium text-charcoal mt-1">{metrics?.difficulty ?? '—'}</p>
                 <div className="w-6 h-0.5 bg-charcoal/20 mt-2 rounded-full" />
@@ -529,7 +529,7 @@ export default function SimplifierModal({
             <div className="rounded-2xl bg-clay/8 border border-clay/15 p-4 mb-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="iconify text-charcoal/60" data-icon="solar:bolt-linear" style={{ width: '1rem', height: '1rem' }} />
-                <span className="text-[10px] font-medium text-charcoal/50 uppercase tracking-wider">Reduction</span>
+                <span className="text-xs font-medium text-charcoal/50">Reduction</span>
               </div>
               <p className="text-xl font-medium text-charcoal mt-1">{metrics?.reduction != null ? `${metrics.reduction}%` : '—'}</p>
               <div className="w-6 h-0.5 bg-charcoal/20 mt-2 rounded-full" />
@@ -537,8 +537,8 @@ export default function SimplifierModal({
 
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-[11px] text-moss font-medium">Cognitive Load Intensity</p>
-                <span className="text-[11px] text-charcoal/40">{metrics?.intensity != null ? `${metrics.intensity} / 100` : '—'}</span>
+                <p className="text-xs text-moss font-medium">Cognitive Load Intensity</p>
+                <span className="text-xs text-charcoal/40">{metrics?.intensity != null ? `${metrics.intensity} / 100` : '—'}</span>
               </div>
               <div className="h-2 rounded-full bg-moss/10 overflow-hidden">
                 <div
@@ -561,12 +561,12 @@ export default function SimplifierModal({
 
             {metrics?.keywords?.length ? (
               <div className="mt-4">
-                <p className="text-[10px] font-medium text-charcoal/40 uppercase tracking-wider mb-2">Key Terms Detected</p>
+                <p className="text-xs font-medium text-charcoal/40 mb-2">Key Terms Detected</p>
                 <div className="flex flex-wrap gap-2">
                   {metrics.keywords.map((k) => (
                     <span
                       key={k}
-                      className="text-[11px] px-3 py-1 rounded-full bg-moss/8 text-moss border border-moss/15 font-medium"
+                      className="text-xs px-3 py-1 rounded-full bg-moss/8 text-moss border border-moss/15 font-medium"
                     >
                       {k}
                     </span>
@@ -642,7 +642,7 @@ export default function SimplifierModal({
                     ]);
                   }
                 }}
-                className="mt-3 w-full px-4 py-2.5 rounded-xl bg-clay text-cream text-xs font-medium uppercase tracking-wide disabled:opacity-60"
+                className="mt-3 w-full px-4 py-2.5 rounded-xl bg-clay text-cream text-xs font-medium tracking-wide disabled:opacity-60"
               >
                 {tutorAsync.loading ? 'Thinking…' : 'Ask Tutor'}
               </button>
@@ -655,14 +655,14 @@ export default function SimplifierModal({
                     if (!suggested.length) return null;
                     return (
                       <div>
-                        <p className="text-[10px] font-medium text-charcoal/40 uppercase tracking-wider mb-2">Suggested follow-ups</p>
+                        <p className="text-xs font-medium text-charcoal/40 mb-2">Suggested follow-ups</p>
                         <div className="flex flex-wrap gap-2">
                           {suggested.map((q) => (
                             <button
                               key={q}
                               type="button"
                               onClick={() => setTutorQuestion(q)}
-                              className="text-[11px] px-3 py-1 rounded-full bg-moss/8 text-moss border border-moss/15 font-medium hover:bg-moss hover:text-cream transition-all"
+                              className="text-xs px-3 py-1 rounded-full bg-moss/8 text-moss border border-moss/15 font-medium hover:bg-moss hover:text-cream transition-all"
                             >
                               {q}
                             </button>
@@ -713,7 +713,7 @@ export default function SimplifierModal({
                 <p className="text-xs text-charcoal/50 mb-2">Synonyms</p>
                 <div className="flex flex-wrap gap-2">
                   {vocabCard.synonyms.slice(0, 10).map((s) => (
-                    <span key={s} className="text-[11px] px-3 py-1 rounded-full bg-clay/10 text-charcoal/70 border border-clay/20 font-medium">
+                    <span key={s} className="text-xs px-3 py-1 rounded-full bg-clay/10 text-charcoal/70 border border-clay/20 font-medium">
                       {s}
                     </span>
                   ))}

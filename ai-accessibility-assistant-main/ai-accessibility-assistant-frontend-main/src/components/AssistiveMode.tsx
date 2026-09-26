@@ -259,7 +259,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
     >
 
       <div className="mb-12 text-center max-w-2xl mx-auto">
-        <span className="font-mono text-xs text-clay uppercase tracking-wider mb-4 block">System 01</span>
+        <span className=" text-xs text-clay mb-4 block">System 01</span>
         <h2 className="font-medium text-4xl tracking-tight text-charcoal mb-4">Assistive Mode</h2>
         <p className="text-charcoal/70 text-sm md:text-base leading-relaxed">
           For adults and complex text. <span className="italic text-moss text-lg">Enhance comprehension</span>{' '}
@@ -277,10 +277,10 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
               I noticed you struggled with long sentences yesterday. Let's try breaking things down more simply today.
             </p>
             <div className="flex gap-3">
-              <button onClick={onOpenSimplifier} className="px-4 py-2 bg-moss text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:shadow-lg transition-all hover:-translate-y-0.5">
+              <button onClick={onOpenSimplifier} className="px-4 py-2 bg-moss text-white text-xs font-bold rounded-xl hover:shadow-lg transition-all hover:-translate-y-0.5">
                 Open Simplifier
               </button>
-              <button onClick={() => document.querySelector('a[href="#modes"]')?.click()} className="px-4 py-2 bg-white text-moss text-xs font-bold uppercase tracking-wider rounded-xl border border-moss/10 hover:bg-moss/5 transition-all">
+              <button onClick={() => document.querySelector('a[href="#modes"]')?.click()} className="px-4 py-2 bg-white text-moss text-xs font-bold rounded-xl border border-moss/10 hover:bg-moss/5 transition-all">
                 Practice Phonics
               </button>
             </div>
@@ -288,9 +288,9 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
         </div>
 
         {/* Card 0 — Demo Mode */}
-        <div className="md:col-span-2 bg-clay text-white rounded-[3rem] p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl shadow-clay/10 transition-all hover:scale-[1.01] group relative overflow-hidden">
+        <div className="md:col-span-2 bg-clay text-white rounded-3xl p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl shadow-clay/10 transition-all hover:scale-[1.01] group relative overflow-hidden">
           <div className="flex flex-col gap-2 relative z-10 text-left w-full">
-            <span className="font-mono text-[10px] text-white/60 uppercase tracking-widest">Interactive Experience</span>
+            <span className=" text-xs text-white/60">Interactive Experience</span>
             <h3 className="font-medium text-3xl tracking-tight">Experience Neuroread</h3>
             <p className="text-white/70 text-base max-w-md leading-relaxed">Watch our AI tutor bridge the gap between complex medical jargon and clear understanding in real-time.</p>
           </div>
@@ -314,7 +314,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') onOpenSimplifier();
           }}
-          className="clickable-card border border-moss/5 rounded-[3rem] p-10 bg-white flex flex-col transition-all duration-500 hover:shadow-2xl hover:border-moss/20 group relative"
+          className="clickable-card border border-moss/5 rounded-3xl p-10 bg-white flex flex-col transition-all duration-500 hover:shadow-2xl hover:border-moss/20 group relative"
         >
           <div className="w-16 h-16 rounded-2xl bg-moss/5 flex items-center justify-center mb-8 border border-moss/5 group-hover:scale-110 transition-transform group-hover:bg-moss group-hover:text-white">
             <span className="iconify text-3xl" data-icon="solar:magic-stick-3-linear" />
@@ -323,13 +323,13 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
           <p className="text-sm text-text-muted leading-relaxed max-w-sm">
             Instantly translate dense professional text into clear, structured insights. Reduces cognitive strain for better long-form reading.
           </p>
-          <div className="mt-8 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-clay group-hover:translate-x-2 transition-transform">
+          <div className="mt-8 flex items-center gap-2 text-xs font-bold text-clay group-hover:translate-x-2 transition-transform">
             Start Simplifying <span className="iconify" data-icon="solar:arrow-right-linear" />
           </div>
         </div>
 
         {/* Document Upload */}
-        <div className="clickable-card border border-moss/10 rounded-[2rem] p-8 md:p-10 bg-white flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_15px_40px_-15px_rgba(46,64,54,0.15)] group relative">
+        <div className="clickable-card border border-moss/10 rounded-3xl p-8 md:p-10 bg-white flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_15px_40px_-15px_rgba(46,64,54,0.15)] group relative">
           <div className="flex items-center justify-between gap-6 flex-wrap">
             <div>
               <h3 className="font-medium text-2xl tracking-tight text-charcoal mb-2">Document Upload</h3>
@@ -337,7 +337,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
                 Upload a PDF, DOCX, or TXT. We'll extract text, simplify it, and compute cognitive load.
               </p>
             </div>
-            <label className="px-6 py-3 rounded-full bg-moss text-cream text-xs font-medium uppercase tracking-wide cursor-pointer hover:scale-105 transition-transform">
+            <label className="px-6 py-3 rounded-full bg-moss text-cream text-xs font-medium tracking-wide cursor-pointer hover:scale-105 transition-transform">
               {uploadAsync.loading ? 'Uploading…' : 'Upload document'}
               <input
                 type="file"
@@ -374,13 +374,13 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
           {docResult ? (
             <div className="mt-6 flex flex-col gap-6">
               <div className="rounded-2xl bg-moss/[0.03] border border-moss/10 p-5">
-                <p className="text-[10px] font-medium text-charcoal/40 uppercase tracking-wider mb-3">Simplified Document</p>
+                <p className="text-xs font-medium text-charcoal/40 mb-3">Simplified Document</p>
                 <div className="text-sm text-charcoal/80 leading-relaxed whitespace-pre-wrap">
                   {docResult.simplified_text}
                 </div>
               </div>
               <div className="rounded-2xl bg-white border border-moss/10 p-5">
-                <p className="text-[10px] font-medium text-charcoal/40 uppercase tracking-wider mb-3">Metrics</p>
+                <p className="text-xs font-medium text-charcoal/40 mb-3">Metrics</p>
                 <div className="text-sm text-charcoal/70 space-y-2">
                   <div className="flex items-center justify-between">
                     <span>Cognitive load</span>
@@ -390,12 +390,12 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
 
                 {Array.isArray(docResult.keywords) && docResult.keywords.length ? (
                   <div className="mt-5">
-                    <p className="text-[10px] font-medium text-charcoal/40 uppercase tracking-wider mb-2">Keywords</p>
+                    <p className="text-xs font-medium text-charcoal/40 mb-2">Keywords</p>
                     <div className="flex flex-wrap gap-2">
                       {docResult.keywords.map((k) => (
                         <span
                           key={k}
-                          className="text-[11px] px-3 py-1 rounded-full bg-moss/8 text-moss border border-moss/15 font-medium"
+                          className="text-xs px-3 py-1 rounded-full bg-moss/8 text-moss border border-moss/15 font-medium"
                         >
                           {k}
                         </span>
@@ -409,7 +409,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
         </div>
 
         {/* OCR Scan Text Module */}
-        <div className="md:col-span-2 clickable-card border border-moss/10 rounded-[2rem] p-8 md:p-10 bg-white flex flex-col transition-all duration-300 hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)] group relative">
+        <div className="md:col-span-2 clickable-card border border-moss/10 rounded-3xl p-8 md:p-10 bg-white flex flex-col transition-all duration-300 hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)] group relative">
           <div className="flex items-center justify-between gap-6 flex-wrap">
             <div className="flex items-start gap-6">
               <div className="w-16 h-16 rounded-2xl bg-clay/5 flex items-center justify-center border border-clay/5 text-clay shrink-0">
@@ -447,7 +447,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
 
           {/* Camera Viewport */}
           {cameraOpen && (
-            <div className="mt-8 bg-black rounded-[2rem] overflow-hidden relative w-full max-w-3xl mx-auto shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="mt-8 bg-black rounded-3xl overflow-hidden relative w-full max-w-3xl mx-auto shadow-2xl animate-in fade-in zoom-in-95">
               <video ref={videoRef} autoPlay playsInline className="w-full h-80 object-cover opacity-80" />
               <div className="absolute inset-0 border-4 border-white/20 border-dashed m-12 rounded-xl pointer-events-none" />
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4">
@@ -460,7 +460,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
 
           {/* Extracting State */}
           {ocrLoading && (
-            <div className="mt-8 p-12 bg-moss/5 rounded-[2rem] border border-moss/10 flex flex-col items-center justify-center animate-pulse">
+            <div className="mt-8 p-12 bg-moss/5 rounded-3xl border border-moss/10 flex flex-col items-center justify-center animate-pulse">
               <span className="iconify text-4xl text-moss mb-4 animate-spin" data-icon="solar:restart-bold" />
               <h4 className="text-xl font-bold text-moss">Extracting Text...</h4>
               <p className="text-sm text-moss/60 mt-2">Running layout analysis and language detection</p>
@@ -491,7 +491,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
 
               {activeTab === 'simplified' && (
                 <div className="bg-white border border-moss/20 shadow-inner rounded-2xl p-6 relative">
-                  <span className="absolute top-4 right-4 text-[10px] font-bold text-moss/50 uppercase tracking-widest bg-moss/5 px-2 py-1 rounded">Optimized for Dyslexia</span>
+                  <span className="absolute top-4 right-4 text-xs font-bold text-moss/50 bg-moss/5 px-2 py-1 rounded">Optimized for Dyslexia</span>
 
                   {/* ── Accessibility-aware simplified text rendering ── */}
                   <div
@@ -570,7 +570,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
                       </button>
                     )}
                   </div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-orange-500/60 flex items-center justify-center gap-2">
+                  <p className="text-xs font-bold text-orange-500/60 flex items-center justify-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" /> Using Native Web Speech Engine
                   </p>
                 </div>
