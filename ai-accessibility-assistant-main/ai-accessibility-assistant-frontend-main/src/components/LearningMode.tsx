@@ -68,7 +68,7 @@ export default function LearningMode({ active }: { active: boolean }) {
         </p>
       </header>
 
-      <div role="tablist" aria-label="Learning activities" className="mb-6 flex gap-2 overflow-x-auto pb-1">
+      <div role="tablist" aria-label="Learning activities" className="mb-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
         {SUB_MODES.map((m, idx) => {
           const selected = subMode === m.id;
           return (
@@ -82,7 +82,7 @@ export default function LearningMode({ active }: { active: boolean }) {
               tabIndex={selected ? 0 : -1}
               onClick={() => setSubMode(m.id)}
               onKeyDown={(e) => onTabKey(e, idx)}
-              className={`flex shrink-0 items-center gap-2 rounded-xl border px-4 py-3 font-bold ${
+              className={`flex items-center gap-2 rounded-xl border px-3 py-3 font-bold sm:px-4 ${
                 selected ? 'border-primary bg-primary text-white' : 'border-line bg-surface text-ink hover:border-primary/50'
               }`}
             >

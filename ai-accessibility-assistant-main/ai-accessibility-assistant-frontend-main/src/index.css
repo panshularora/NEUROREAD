@@ -132,8 +132,15 @@
 
 /* White cards follow the active reading background and dark mode. */
 .bg-white { background-color: rgb(var(--c-surface)); }
-.dark .bg-moss { background-color: #1e6660; }
-.dark .bg-clay { background-color: #8a4516; }
+/* In dark mode the primary and accent tokens are light (for text and
+   outlines), so solid buttons that carry white text use deeper shades. */
+.dark .bg-moss,
+.dark .bg-primary { background-color: #1e6660; }
+.dark .bg-clay,
+.dark .bg-accent { background-color: #8a4516; }
+.dark .hover\:bg-primary\/90:hover,
+.dark .hover\:bg-primary\/85:hover { background-color: #23766f; }
+.dark .hover\:bg-accent\/90:hover { background-color: #9a4f1b; }
 
 /* ── Components ── */
 
