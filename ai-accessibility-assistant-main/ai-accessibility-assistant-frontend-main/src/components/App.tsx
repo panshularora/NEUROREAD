@@ -163,7 +163,14 @@ export default function App() {
           Skip to content
         </a>
 
-        {showOnboarding && <Onboarding onComplete={() => setShowOnboarding(false)} />}
+        {showOnboarding && (
+          <Onboarding
+            onComplete={(_age, startAt) => {
+              setShowOnboarding(false);
+              if (startAt) navigate(startAt);
+            }}
+          />
+        )}
         <ColorOverlay />
         <ReadingRuler />
         <AccessibilityMenu open={settingsOpen} onClose={() => setSettingsOpen(false)} />
