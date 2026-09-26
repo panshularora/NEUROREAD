@@ -1,10 +1,12 @@
 # NeuroRead: adaptive reading platform for dyslexic learners
 
+[![tests](https://github.com/panshularora/NEUROREAD/actions/workflows/tests.yml/badge.svg)](https://github.com/panshularora/NEUROREAD/actions/workflows/tests.yml)
+
 **What:** a web app for dyslexic readers. Paste complex text and an LLM simplifies it; the text is read aloud word by word with phoneme colour coding; and adaptive exercises track each skill with classical learner models.
 **Why:** dense text is a barrier for dyslexic readers. Simplifying the text and then practising the specific weak skills (e.g., b/d distinction, spelling) targets both problems.
 **Recognition:** 1st place of 200+ teams at the WiCyS hackathon. <!-- Panshul: confirm the exact event name/year and whether it was entered as "NeuroCare" -->
 
-**Status (Sep 2026):** the full app runs locally. The frontend is live at [neuroread-final-main-everyhting.vercel.app](https://neuroread-final-main-everyhting.vercel.app) (built by Vercel from the [`neuroread-final-main-everyhting`](https://github.com/panshularora/neuroread-final-main-everyhting) deploy snapshot). The backend is not deployed yet, so on the live site the features that call the API (simplify, learning and practice sessions) do not work; run it locally for those. The 15 unit tests in `tests/` (BKT engine, simplifier fallback, phoneme annotation) pass on Python 3.11.
+**Status (Sep 2026):** the full app runs locally. The frontend is live at [neuroread-final-main-everyhting.vercel.app](https://neuroread-final-main-everyhting.vercel.app) (built by Vercel from the [`neuroread-final-main-everyhting`](https://github.com/panshularora/neuroread-final-main-everyhting) deploy snapshot). The backend is not deployed yet, so on the live site the features that call the API (simplify, learning and practice sessions) do not work; run it locally for those. The 15 unit tests in `tests/` (BKT engine, simplifier fallback, phoneme annotation) pass on Python 3.11 and run in GitHub Actions on every push.
 
 | Mode | What it does |
 |---|---|
