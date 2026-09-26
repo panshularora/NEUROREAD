@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { MotionConfig } from 'framer-motion';
 import { simplifyText, ensureUserId, setUserId } from '../services/api';
 import { useHashRoute } from '../lib/useHashRoute';
@@ -11,6 +11,7 @@ declare global {
 }
 import AssistiveMode from './AssistiveMode';
 import Hero from './Hero';
+import HowItWorks from './HowItWorks';
 import History from './History';
 import LearningMode from './LearningMode';
 import PracticeMode from './PracticeMode';
@@ -91,41 +92,6 @@ export default function App() {
     window.Iconify?.scan?.();
   }, [route, historySessions.length]);
 
-  const impactSection = useMemo(() => {
-    return (
-      <section id="impact" className="py-24 relative z-20 rounded-t-[3rem] -mt-10 overflow-hidden bg-white/20 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="mb-20">
-            <span className=" text-xs text-moss block mb-3">Our Vision</span>
-            <h2 className="md:text-5xl text-charcoal text-4xl font-medium tracking-tight max-w-2xl">
-              Calm, Structured, and Personalized Learning
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="impact-card border border-moss/10 rounded-3xl p-8 md:p-10 bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-md">
-              <h3 className="font-medium text-2xl tracking-tight text-charcoal mb-4">Focus Mode</h3>
-              <p className="text-charcoal/70 text-base leading-relaxed">
-                Clean interfaces designed to reduce cognitive load and prioritize reading comprehension.
-              </p>
-            </div>
-            <div className="impact-card border border-moss/10 rounded-3xl p-8 md:p-10 bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-md">
-              <h3 className="font-medium text-2xl tracking-tight text-charcoal mb-4">AI Tutor</h3>
-              <p className="text-charcoal/70 text-base leading-relaxed">
-                An emotionally supportive reading companion that simplifies logic on the fly.
-              </p>
-            </div>
-            <div className="impact-card border border-moss/10 rounded-3xl p-8 md:p-10 bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-md">
-              <h3 className="font-medium text-2xl tracking-tight text-charcoal mb-4">Progress</h3>
-              <p className="text-charcoal/70 text-base leading-relaxed">
-                Track phonics and memory milestones with actionable daily recommendations.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }, []);
-
   const closeSimplifier = useCallback(() => {
     navigate('home');
     setAudioOn(false);
@@ -134,8 +100,9 @@ export default function App() {
   const toggleDyslexia = useCallback(() => setDyslexiaOn((v) => !v), []);
   const toggleAudio = useCallback(() => setAudioOn((v) => !v), []);
 
-  const runSimplifier = useCallback(async () => {
-    const text = inputText.trim();
+  // `override` lets the demo pass its text directly instead of waiting for state.
+  const runSimplifier = useCallback(async (override?: unknown) => {
+    const text = (typeof override === 'string' ? override : inputText).trim();
     if (!text) {
       setError('Please enter some text to simplify.');
       return;
@@ -225,7 +192,6 @@ export default function App() {
           {(route === 'home' || route === 'read') && (
             <>
               <Hero />
-              {impactSection}
               <section id="assistive-mode-section" className="py-16">
                 <AssistiveMode
                   active={true}
@@ -235,6 +201,7 @@ export default function App() {
                   onNavigate={navigate}
                 />
               </section>
+              <HowItWorks />
               <History userId={userId} />
             </>
           )}
