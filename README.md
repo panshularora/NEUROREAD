@@ -1,18 +1,18 @@
-# NeuroRead — AI-Powered Reading Accessibility Platform
+# NeuroRead: adaptive reading platform for dyslexic learners
 
-**NeuroRead** is an adaptive reading platform designed to support dyslexic learners of all ages. It combines real-time text simplification, word-level TTS synchronisation, and a full adaptive learning engine powered by Bayesian Knowledge Tracing (BKT), Item Response Theory (IRT), and SM-2 Spaced Repetition.
+**What:** a web app for dyslexic readers. Paste complex text and an LLM simplifies it; the text is read aloud word by word with phoneme colour coding; and adaptive exercises track each skill with classical learner models.
+**Why:** dense text is a barrier for dyslexic readers. Simplifying the text and then practising the specific weak skills (e.g., b/d distinction, spelling) targets both problems.
+**Recognition:** 1st place of 200+ teams at the WiCyS hackathon. <!-- Panshul: confirm the exact event name/year and whether it was entered as "NeuroCare" -->
 
----
-
-## What it actually does
+**Status (Sep 2026):** runs locally. The Vercel deploy (`neuroread-final-main-everyhting.vercel.app`) currently returns **404**, so there is no live demo right now. The learner-model tests pass (`tests/test_bkt.py`, 10 tests).
 
 | Mode | What it does |
 |---|---|
-| **Assistive Mode** | Pastes any complex text → AI simplifies it → reads aloud word by word with phoneme color coding for b/d/p/q |
-| **Learning Mode** | Adaptive exercises (phonics, spelling, comprehension) that update skill estimates after every answer using BKT |
-| **Practice Mode** | SM-2 spaced-repetition review queue that surfaces only the skills you're about to forget |
+| **Assistive Mode** | Paste text, then the LLM (Llama 3.3 70B via Groq) simplifies it, then it is read aloud word by word (gTTS) with colour coding for b/d/p/q. If the LLM call fails, a deterministic rule-based simplifier runs instead |
+| **Learning Mode** | Adaptive exercises (phonics, spelling, comprehension). After every answer, Bayesian Knowledge Tracing updates P(know) per skill, IRT 2PL scores the item, and a ZPD rule adjusts difficulty |
+| **Practice Mode** | SM-2 spaced-repetition review queue of the skills due for review |
 
-Everything the user sees (font, size, colour overlay, reading speed) is controlled through a single Accessibility Panel, persisted to `localStorage`.
+The learner models (`backend/app/ml/bkt_engine.py`, `irt_scorer.py`, `sm2_scheduler.py`, `zpd_flow.py`) are hand-implemented with fixed parameters. Nothing is trained from data. Accessibility settings (font, size, overlay, speed) persist in `localStorage`.
 
 ---
 
@@ -120,6 +120,12 @@ pytest tests/test_simplification.py -v
 5. **03:00** — Open Accessibility Panel, switch to OpenDyslexic, increase font size to 20px, apply Cream overlay.
 
 ---
+
+## Repo notes and next steps
+- Redeploy the app (or remove the dead link from `neuroread-final-main-everyhting`).
+- Remove committed artifacts: generated MP3s, pyright/error logs, `Untitled.docx` / `Untitled.txt`.
+- Add a CI job that runs `pytest tests/`.
+- Earlier or alternate snapshots: `NEUROREAD-CAD`, `ai-assistant`, `amdslingshot`, `neuroread-final-main-everyhting`.
 
 ## License
 
