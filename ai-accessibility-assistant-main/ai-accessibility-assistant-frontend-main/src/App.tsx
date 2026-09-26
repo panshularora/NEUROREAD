@@ -1,3 +1,3 @@
-import NeuroreadApp from './components/App.jsx';
+import NeuroreadApp from './components/App';
 
 export default NeuroreadApp;

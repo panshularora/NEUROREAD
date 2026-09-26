@@ -3,23 +3,44 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 
 export default function BookBackground() {
-  const mountRef = useRef(null);
-  const canvasRef = useRef(null);
+  const mountRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (!mountRef.current) return;
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({
-      canvas: canvasRef.current,
-      alpha: true,
-      antialias: true,
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.setClearColor(0x000000, 0);
+    // WebGL Support Check
+    const isWebGLAvailable = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        return !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+      } catch (e) {
+        return false;
+      }
+    };
+
+    if (!isWebGLAvailable()) {
+      console.warn('WebGL not supported, skipping 3D background.');
+      return;
+    }
+
+    let renderer;
+    try {
+      // Renderer
+      renderer = new THREE.WebGLRenderer({
+        canvas: canvasRef.current as HTMLCanvasElement,
+        alpha: true,
+        antialias: true,
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.setClearColor(0x000000, 0);
+    } catch (e) {
+      console.error('Failed to initialize WebGL renderer:', e);
+      return;
+    }
 
     // Scene
     const scene = new THREE.Scene();
@@ -138,7 +159,7 @@ export default function BookBackground() {
       }
 
       if (mountRef.current) {
-        mountRef.current.style.opacity = opacity;
+        (mountRef.current as HTMLDivElement).style.opacity = opacity.toString();
       }
     };
 

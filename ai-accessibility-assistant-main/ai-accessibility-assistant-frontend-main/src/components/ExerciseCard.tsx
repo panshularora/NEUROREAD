@@ -195,7 +195,7 @@ export default function ExerciseCard({ exercise, onAnswer, disabled, feedback }:
           letterSpacing: '0.1em', color: '#2d6a4f',
           background: 'rgba(45,106,79,0.08)', padding: '4px 10px', borderRadius: 20,
         }}>
-          {exercise.target_skill.replace(/_/g, ' ')}
+          {(exercise.target_skill || '').replace(/_/g, ' ')}
         </span>
         <span style={{
           fontSize: 11, color: '#999', fontWeight: 600,

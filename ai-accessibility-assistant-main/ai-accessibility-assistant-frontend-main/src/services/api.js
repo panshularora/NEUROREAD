@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://localhost:8001';
+export const BASE_URL = import.meta.env.VITE_API_URL;
 
 function getStoredUserId() {
   return localStorage.getItem('user_id') || '';
@@ -65,7 +65,11 @@ function mapProfile(profileLabel) {
 
 // ─── Assistive APIs ──────────────────────────────────────────────
 
-export async function simplifyText(text, profile, user_id) {
+export async function postSimplify({ text, profile, user_id, enable_dyslexia_support, enable_audio }) {
+  return simplifyText(text, profile, user_id, enable_dyslexia_support, enable_audio);
+}
+
+export async function simplifyText(text, profile, user_id, enable_dyslexia_support = true, enable_audio = false) {
   const userId = user_id || getStoredUserId();
   return request('/assistive/simplify', {
     method: 'POST',
@@ -74,8 +78,8 @@ export async function simplifyText(text, profile, user_id) {
       text,
       profile: mapProfile(profile),
       user_id: userId || undefined,
-      enable_dyslexia_support: true,
-      enable_audio: false,
+      enable_dyslexia_support: !!enable_dyslexia_support,
+      enable_audio: !!enable_audio,
     }),
   });
 }
@@ -127,6 +131,14 @@ export async function fetchTTSAudio(text) {
 
 export async function getDashboard(userId) {
   return request(`/analytics/dashboard/${encodeURIComponent(userId)}`);
+}
+
+export async function submitSessionLog(userId, readingTime, pauses, errors, difficultWordsCount = 0) {
+  return request('/analytics/session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, reading_time: readingTime, pauses, errors, difficult_words_count: difficultWordsCount }),
+  });
 }
 
 export async function getHeatmap(text) {

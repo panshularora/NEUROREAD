@@ -1,212 +1,108 @@
-import React from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-type NavKey = 'home' | 'simplifier' | 'dashboard' | 'history' | 'settings' | 'about';
+export default function Navbar({ mode, onModeChange, onNavigate }: { mode: string, onModeChange: (m: string) => void, onNavigate?: (target: string) => void }) {
+  const [scrolled, setScrolled] = useState(false);
 
-interface NavbarProps {
-  active?: NavKey;
-  onChange?: (key: NavKey) => void;
-}
 
-const Navbar: React.FC<NavbarProps> = ({ active = 'simplifier', onChange }) => {
-  const makeHandler = (key: NavKey) => () => {
-    onChange?.(key);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+
+
+  const isTransparent = !scrolled && mode === 'assistive';
+
+  const className = useMemo(() => {
+    const base = 'fixed top-4 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 rounded-full px-8 py-3.5 flex items-center justify-between w-[95%] max-w-6xl';
+    if (isTransparent) return `${base} bg-transparent text-white`;
+    return `${base} bg-white/95 backdrop-blur-[16px] text-moss border border-black/10 shadow-md translate-y-2`;
+  }, [isTransparent]);
+
+  const getLinkClass = (linkMode: string) => {
+    const base = 'transition-all duration-300';
+    const hover = isTransparent ? 'hover:text-white' : 'hover:text-moss';
+    const active = mode === linkMode ? (isTransparent ? 'text-white' : 'text-moss') : '';
+    return `${base} ${hover} ${active}`;
   };
 
   return (
-    <nav className="navbar-root" aria-label="Primary navigation">
-      <div className="navbar-track">
-        <button
-          type="button"
-          className={`navbar-pill ${active === 'home' ? 'is-active' : ''}`}
-          onClick={makeHandler('home')}
+    <nav id="navbar" className={className}>
+      <div className="flex items-center">
+        <a 
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            onModeChange('assistive');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className={`flex items-center gap-3 uppercase text-sm font-medium tracking-[0.5em] hover:opacity-80 transition-opacity cursor-pointer flex-shrink-0 ${isTransparent ? "text-white" : "text-moss"}`}
         >
-          <span className="navbar-icon">
-            {/* home icon */}
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M4 11 12 4l8 7v7.25c0 .69-.56 1.25-1.25 1.25H5.25A1.25 1.25 0 0 1 4 18.25V11Z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-          <span className="navbar-label">Home</span>
-        </button>
+          <img src="/neuroread_logo.png" alt="Neuroread Logo" className={`h-8 w-auto object-contain transition-all duration-500 ${isTransparent ? "brightness-0 invert" : ""}`} />
+          <span className="hidden sm:inline">N e u r o r e a d</span>
+        </a>
+      </div>
 
-        <button
-          type="button"
-          className={`navbar-pill ${active === 'simplifier' ? 'is-active' : ''}`}
-          onClick={makeHandler('simplifier')}
-        >
-          <span className="navbar-icon">
-            {/* cube / processing icon */}
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M5.25 8.5 12 4.75l6.75 3.75V15.5L12 19.25 5.25 15.5V8.5Z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M12 12.5v6.75"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-              />
-            </svg>
-          </span>
-          <span className="navbar-label">Simplifier</span>
-        </button>
+      <div className="flex items-center gap-6">
 
-        <button
-          type="button"
-          className={`navbar-pill ${active === 'dashboard' ? 'is-active' : ''}`}
-          onClick={makeHandler('dashboard')}
-        >
-          <span className="navbar-icon">
-            {/* monitoring bars icon */}
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M6 18V9.5M12 18V6M18 18v-4.5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-          </span>
-          <span className="navbar-label">Dashboard</span>
-        </button>
 
-        <button
-          type="button"
-          className={`navbar-pill ${active === 'history' ? 'is-active' : ''}`}
-          onClick={makeHandler('history')}
-        >
-          <span className="navbar-icon">
-            {/* clock / history icon */}
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M4.5 12A7.5 7.5 0 1 1 12 19.5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-              />
-              <path
-                d="M12 7v5l3 2"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M4.5 8.5V4.5h4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-          <span className="navbar-label">History</span>
-        </button>
-
-        <button
-          type="button"
-          className={`navbar-pill ${active === 'settings' ? 'is-active' : ''}`}
-          onClick={makeHandler('settings')}
-        >
-          <span className="navbar-icon">
-            {/* settings / cog icon */}
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M11.25 3.5 10.5 5.5l-1.7.6-1.7-1.2L4 7.5l1.2 1.7-.6 1.7-2 .75v2.5l2 .75.6 1.7L4 18.5l3.1 2.6 1.7-1.2 1.7.6.75 2h2.5l.75-2 1.7-.6 1.7 1.2 3.1-2.6-1.2-1.7.6-1.7 2-.75v-2.5l-2-.75-.6-1.7 1.2-1.7-3.1-2.6-1.7 1.2-1.7-.6-.75-2h-2.5Z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <circle
-                cx="12"
-                cy="12"
-                r="3"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              />
-            </svg>
-          </span>
-          <span className="navbar-label">Settings</span>
-        </button>
-
-        <button
-          type="button"
-          className={`navbar-pill ${active === 'about' ? 'is-active' : ''}`}
-          onClick={makeHandler('about')}
-        >
-          <span className="navbar-icon">
-            {/* chat / help icon */}
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M6 18.5 4.5 21l2.5-.8A10 10 0 1 0 4 12"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M8.5 10.75h7M8.5 13.75h4.5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-              />
-            </svg>
-          </span>
-          <span className="navbar-label">About / Help</span>
-        </button>
-
-        {/* search icon-only pill, matching reference */}
-        <button
-          type="button"
-          className="navbar-pill navbar-pill-icon-only"
-          aria-label="Search"
-        >
-          <span className="navbar-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <circle
-                cx="11"
-                cy="11"
-                r="5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              />
-              <path
-                d="m15 15 4 4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-          </span>
-        </button>
+        <div className={`hidden md:flex items-center gap-8 font-medium text-xs tracking-[0.2em] uppercase transition-colors duration-500 ${isTransparent ? "text-white/80" : "text-moss/60"}`}>
+          <a
+            href="#assistive-mode-section"
+            onClick={(e) => {
+              e.preventDefault();
+              onModeChange('assistive');
+              setTimeout(() => {
+                const el = document.getElementById('assistive-mode-section');
+                if (el) {
+                  const y = el.getBoundingClientRect().top + window.scrollY - 140; // Offset for fixed navbar + padding
+                  window.scrollTo({ top: y, behavior: 'smooth' });
+                }
+              }, 100);
+              onNavigate?.('modes');
+            }}
+            className={getLinkClass('assistive')}
+          >
+            ASSIST
+          </a>
+          <a
+            href="#modes"
+            onClick={(e) => {
+              e.preventDefault();
+              onModeChange('learning');
+              onNavigate?.('modes');
+            }}
+            className={getLinkClass('learning')}
+          >
+            LEARNING
+          </a>
+          <a
+            href="#modes"
+            onClick={(e) => {
+              e.preventDefault();
+              onModeChange('practice');
+              onNavigate?.('modes');
+            }}
+            className={getLinkClass('practice')}
+          >
+            PRACTICE
+          </a>
+          <a
+            href="#dashboard"
+            onClick={(e) => {
+              e.preventDefault();
+              onModeChange('dashboard');
+              onNavigate?.('dashboard');
+            }}
+            className={getLinkClass('dashboard')}
+          >
+            DASHBOARD
+          </a>
+        </div>
       </div>
     </nav>
   );
-};
-
-export default Navbar;
+}
 

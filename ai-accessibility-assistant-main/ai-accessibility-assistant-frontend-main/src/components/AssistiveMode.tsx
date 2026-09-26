@@ -5,9 +5,9 @@ import Tesseract from 'tesseract.js';
 import { useAccessibilityStore } from '../stores/accessibilityStore';
 import { colorizeText } from '../utils/phonemeColors.tsx';
 import { speakWithSync } from '../utils/tts';
-import AccessibilityPanel from './accessibility/AccessibilityPanel';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifier, onSetInputText }) {
   const [docResult, setDocResult] = useState(null);
@@ -25,7 +25,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
   const [highlightMode, setHighlightMode] = useState(false);
 
   // Accessibility additions
-  const [panelOpen, setPanelOpen] = useState(false);
+
   const [difficultyResult, setDifficultyResult] = useState(null);
   const [checkingDifficulty, setCheckingDifficulty] = useState(false);
   const [highlightedCharRange, setHighlightedCharRange] = useState(null);
@@ -257,32 +257,6 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
       }`}
       style={{ position: 'relative' }}
     >
-      {/* ── Accessibility gear button ── */}
-      <button
-        id="accessibility-panel-btn"
-        onClick={() => setPanelOpen(true)}
-        title="Reading settings"
-        style={{
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          zIndex: 50,
-          background: 'rgba(46,64,54,0.08)',
-          border: '1px solid rgba(46,64,54,0.15)',
-          borderRadius: 12,
-          padding: '6px 12px',
-          cursor: 'pointer',
-          fontSize: 18,
-          color: '#2E4036',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          fontWeight: 500,
-        }}
-      >
-        ⚙ <span style={{ fontSize: 12, fontWeight: 600 }}>Reading Settings</span>
-      </button>
-      <AccessibilityPanel isOpen={panelOpen} onClose={() => setPanelOpen(false)} />
 
       <div className="mb-12 text-center max-w-2xl mx-auto">
         <span className="font-mono text-xs text-clay uppercase tracking-wider mb-4 block">System 01</span>
@@ -298,7 +272,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
         <div className="md:col-span-2 bg-gradient-to-r from-moss/10 to-transparent border-l-4 border-moss p-6 rounded-2xl flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-bottom flex-wrap md:flex-nowrap">
           <span className="iconify text-3xl text-moss mt-1 shrink-0" data-icon="solar:hand-stars-bold-duotone" />
           <div className="flex-1">
-            <h3 className="font-bold text-moss text-xl mb-1">Welcome back, Panshul!</h3>
+            <h3 className="font-bold text-moss text-xl mb-1">Welcome back!</h3>
             <p className="text-sm text-moss/70 leading-relaxed mb-4">
               I noticed you struggled with long sentences yesterday. Let's try breaking things down more simply today.
             </p>
@@ -631,62 +605,7 @@ export default function AssistiveMode({ active, onOpenSimplifier, onRunSimplifie
           )}
         </div>
 
-        {/* Quick Insights & Action Panel */}
-        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 mt-2">
-          
-          <div className="bg-white border border-moss/10 rounded-[2.5rem] p-8 shadow-sm h-full flex flex-col justify-between">
-            <div>
-              <h3 className="text-lg font-bold text-moss mb-4 flex items-center gap-2">
-                <span className="iconify text-xl" data-icon="solar:history-bold-duotone" />
-                Quick Actions Panel
-              </h3>
-              <div className="flex flex-col gap-2">
-                <button onClick={() => alert("Resuming session: 'Chapter 4 Notes'")} className="p-4 bg-moss/5 hover:bg-moss text-left rounded-xl text-moss hover:text-white transition-all font-bold flex items-center justify-between group">
-                  Resume reading "Chapter 4" <span className="iconify opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all font-bold" data-icon="solar:arrow-right-linear" />
-                </button>
-                <button onClick={() => document.querySelector('a[href="#modes"]')?.click()} className="p-4 bg-moss/5 hover:bg-moss text-left rounded-xl text-moss hover:text-white transition-all font-bold flex items-center justify-between group">
-                  Practice weak words <span className="iconify opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all font-bold" data-icon="solar:arrow-right-linear" />
-                </button>
-              </div>
-            </div>
-            
-            {docResult?.keywords && docResult.keywords.length > 0 && (
-              <div className="mt-6 pt-6 border-t border-moss/10 animate-in fade-in">
-                <p className="text-[10px] uppercase font-bold text-charcoal/40 mb-3 tracking-widest">Recent Scan Insights</p>
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 bg-red-50 text-red-600 rounded-full text-xs font-bold border border-red-100">Hard Read</span>
-                  <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold border border-blue-100">2 Min Est</span>
-                  {docResult.keywords.slice(0,2).map(k => (
-                    <span key={k} className="px-3 py-1 bg-moss/5 text-moss rounded-full text-xs font-bold border border-moss/10">{k}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
 
-          <div className="bg-moss/90 text-white border border-moss/10 rounded-[2.5rem] p-8 shadow-md relative overflow-hidden h-full flex flex-col">
-            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full blur-2xl pointer-events-none" />
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 relative z-10">
-              <span className="iconify text-xl text-clay" data-icon="solar:stars-minimalistic-bold" />
-              Global Smart Tools
-            </h3>
-            <div className="grid grid-cols-2 gap-3 relative z-10 flex-1 content-start">
-              <button onClick={() => speakText("This is the global read aloud system testing testing.")} className="bg-white/10 hover:bg-white/20 p-4 rounded-2xl flex flex-col items-start gap-2 font-medium text-sm transition-all text-left group">
-                <span className="iconify text-2xl text-white group-hover:scale-110 transition-transform" data-icon="solar:volume-loud-bold" /> Read Aloud
-              </button>
-              <button onClick={() => { onSetInputText('This is a simulated keyword highlighting feature mapped from the smart tools pane.'); onOpenSimplifier(); }} className="bg-white/10 hover:bg-white/20 p-4 rounded-2xl flex flex-col items-start gap-2 font-medium text-sm transition-all text-left group">
-                <span className="iconify text-2xl text-clay group-hover:scale-110 transition-transform" data-icon="solar:magic-stick-3-bold" /> Simplify Text
-              </button>
-              <button onClick={() => setHighlightMode(prev => !prev)} className={`p-4 rounded-2xl flex flex-col items-start gap-2 font-medium text-sm transition-all text-left ${highlightMode ? 'bg-orange-500/40 outline outline-2 outline-orange-400' : 'bg-white/10 hover:bg-white/20'}`}>
-                <span className="iconify text-2xl text-orange-400" data-icon="solar:highlighter-bold" /> HL Keywords {highlightMode && '(ON)'}
-              </button>
-              <button onClick={() => setPanelOpen(true)} className="bg-white/10 hover:bg-white/20 p-4 rounded-2xl flex flex-col items-start gap-2 font-medium text-sm transition-all text-left group">
-                <span className="iconify text-2xl text-white/50 group-hover:scale-110 transition-transform" data-icon="solar:settings-bold" /> Reading Settings
-              </button>
-            </div>
-          </div>
-
-        </div>
       </div>
     </div>
   );

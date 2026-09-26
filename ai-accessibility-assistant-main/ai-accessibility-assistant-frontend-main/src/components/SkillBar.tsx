@@ -18,7 +18,7 @@ export default function SkillBar({ skillName, pKnow, mastered, delta }: SkillBar
     return '#FFB347';                  // low orange
   }
 
-  const displayName = skillName
+  const displayName = (skillName || '')
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (c) => c.toUpperCase());
 

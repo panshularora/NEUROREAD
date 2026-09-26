@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { rewriteText, generateVocabCard, askTutor, fetchTTSAudio } from '../services/api';
+import { rewriteText, generateVocabCard, askTutor, fetchTTSAudio, submitSessionLog } from '../services/api';
 import { useAsync } from '../hooks/useAsync';
 import InteractiveReader from './reading/InteractiveReader';
 import CompanionAvatar from './reading/CompanionAvatar';
@@ -31,13 +31,35 @@ export default function SimplifierModal({
   const [vocabCard, setVocabCard] = useState(null);
   const [tutorQuestion, setTutorQuestion] = useState('');
   const [tutorMode, setTutorMode] = useState('explain');
-  const [tutorMessages, setTutorMessages] = useState([]);
+  const [tutorMessages, setTutorMessages] = useState<any[]>([]);
   const [ttsUrl, setTtsUrl] = useState('');
+
+  const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
+  const [pausesCount, setPausesCount] = useState(0);
+  const [errorsCount, setErrorsCount] = useState(0);
 
   const rewriteAsync = useAsync(rewriteText, { retries: 1 });
   const vocabAsync = useAsync(generateVocabCard, { retries: 1 });
   const tutorAsync = useAsync(askTutor, { retries: 0 });
   const ttsAsync = useAsync(fetchTTSAudio, { retries: 0 });
+
+  useEffect(() => {
+    if (open && simplifiedText) {
+      if (!sessionStartTime) {
+         setSessionStartTime(Date.now());
+      }
+    }
+    if (!open && sessionStartTime) {
+       const timeSeconds = (Date.now() - sessionStartTime) / 1000;
+       const readingTimeMinutes = timeSeconds / 60;
+       const diffWords = difficultWordsSet?.size || 0;
+       submitSessionLog(userId, readingTimeMinutes, pausesCount, errorsCount, diffWords).catch(console.error);
+
+       setSessionStartTime(null);
+       setPausesCount(0);
+       setErrorsCount(0);
+    }
+  }, [open, simplifiedText, sessionStartTime, userId, pausesCount, errorsCount]);
 
   useEffect(() => {
     if (!open) return;
@@ -404,7 +426,8 @@ export default function SimplifierModal({
                       text={simplifiedText}
                       dyslexiaStyle={dyslexiaStyle}
                       difficultWordsSet={difficultWordsSet}
-                      onWordClick={async (word) => {
+                      onWordClick={async (word: any) => {
+                        setErrorsCount(e => e + 1);
                         try {
                           const card = await vocabAsync.run(word);
                           setVocabCard(card);
@@ -595,6 +618,7 @@ export default function SimplifierModal({
                 onClick={async () => {
                   const q = tutorQuestion.trim();
                   if (!q) return;
+                  setPausesCount(p => p + 1);
                   setTutorQuestion('');
                   setTutorMessages((prev) => [
                     ...prev,

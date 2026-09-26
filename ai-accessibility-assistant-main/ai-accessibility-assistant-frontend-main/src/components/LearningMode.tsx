@@ -17,7 +17,7 @@ import {
 } from '../services/api';
 import AudioButton from './AudioButton';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface Exercise {
   id: string;
@@ -38,7 +38,8 @@ interface Skill {
 }
 
 export default function LearningMode({ active }: { active: boolean }) {
-  const [subMode, setSubMode] = useState<'adaptive' | 'read-along' | 'phonics' | 'visual' | 'stories'>('adaptive');
+  const [subMode, setSubMode] = useState<'adaptive' | 'read-along' | 'phonics' | 'stories'>('adaptive');
+  const [selectedStoryId, setSelectedStoryId] = useState('story-1');
   const userId = ensureUserId();
 
   if (!active) return null;
@@ -47,7 +48,6 @@ export default function LearningMode({ active }: { active: boolean }) {
     { id: 'adaptive', name: 'Adaptive AI', icon: 'solar:magic-stick-3-bold-duotone', color: 'bg-moss/10 text-moss' },
     { id: 'read-along', name: 'Read Along', icon: 'solar:music-note-bold-duotone', color: 'bg-blue-50 text-blue-600' },
     { id: 'phonics', name: 'Phonics Lab', icon: 'solar:microphone-3-bold-duotone', color: 'bg-green-50 text-green-600' },
-    { id: 'visual', name: 'Visual Mode', icon: 'solar:eye-bold-duotone', color: 'bg-clay/10 text-clay' },
     { id: 'stories', name: 'Story Mode', icon: 'solar:book-bold-duotone', color: 'bg-purple-50 text-purple-600' },
   ];
 
@@ -85,10 +85,9 @@ export default function LearningMode({ active }: { active: boolean }) {
 
         <div className="relative z-10">
           {subMode === 'adaptive' && <AdaptiveLearningSection userId={userId} />}
-          {subMode === 'read-along' && <ReadAlongSection userId={userId} />}
+          {subMode === 'read-along' && <ReadAlongSection userId={userId} selectedStoryId={selectedStoryId} onSelectStory={setSelectedStoryId} />}
           {subMode === 'phonics' && <PhonicsLabSection userId={userId} />}
-          {subMode === 'visual' && <VisualModeSection userId={userId} />}
-          {subMode === 'stories' && <StoryModeSection userId={userId} />}
+          {subMode === 'stories' && <StoryModeSection userId={userId} selectedStoryId={selectedStoryId} onSelectStory={(id) => { setSelectedStoryId(id); setSubMode('read-along'); }} />}
         </div>
       </div>
     </div>
@@ -270,16 +269,135 @@ function AdaptiveLearningSection({ userId }: { userId: string }) {
 
 /* ──────────────── SUB-SECTIONS (unchanged classic modes) ──────────────── */
 
-function ReadAlongSection({ userId }: { userId: string }) {
+const STORIES = [
+  {
+    id: 'story-1', title: "The Big Red Bed",
+    tags: [{ label: 'b/d confusion', type: 'red' }, { label: 'phonics', type: 'green' }],
+    trains: "Trains: b/d confusion",
+    text: "Ben had a big red bed. He did not like the dark. He kept a dog by his bed. The dog did not bark at night. Ben felt safe. He slept well."
+  },
+  {
+    id: 'story-2', title: "Dan and the Drum",
+    tags: [{ label: 'b/d confusion', type: 'red' }, { label: 'phonics', type: 'green' }],
+    trains: "Trains: b/d confusion",
+    text: "Dan had a drum. He beat it every day. His dad did not mind. His dog ran away from the sound. Dan played a tune. Dad clapped his hands."
+  },
+  {
+    id: 'story-3', title: "The Map and the Path",
+    tags: [{ label: 'phonics', type: 'green' }],
+    trains: "Trains: Phonics — short vowels",
+    text: "Sam had a map. The path was flat. He sat on a rock. A cat ran past. Sam got up fast. He found the hut at last."
+  },
+  {
+    id: 'story-4', title: "The Hot Sun",
+    tags: [{ label: 'phonics', type: 'green' }],
+    trains: "Trains: Phonics — short vowels",
+    text: "It was hot. Tom sat on a log. He got a red cup. He drank cold milk. The sun went down. Tom ran back home."
+  },
+  {
+    id: 'story-5', title: "The Night Light",
+    tags: [{ label: 'phonics', type: 'green' }, { label: 'fluency', type: 'pink' }],
+    trains: "Trains: Phonics — vowel teams",
+    text: "Each night, Lily switched on her light. The bright glow made her room feel right. She could read and write and think. Sleep came slowly, soft and sweet."
+  },
+  {
+    id: 'story-6', title: "The Rain Train",
+    tags: [{ label: 'phonics', type: 'green' }],
+    trains: "Trains: Phonics — vowel teams",
+    text: "The train came in the rain. Jane got on with a cane. She had a bag of grain. The rain did not stop. The train was late. Jane did not complain."
+  },
+  {
+    id: 'story-7', title: "The Park",
+    tags: [{ label: 'sight words', type: 'blue' }],
+    trains: "Trains: Sight words",
+    text: "I went to the park. I could see many children. They were running around. Some of them had a ball. I sat down on the grass. It was a good day."
+  },
+  {
+    id: 'story-8', title: "A Cold Morning",
+    tags: [{ label: 'sight words', type: 'blue' }],
+    trains: "Trains: Sight words",
+    text: "Every morning was cold. She would get up early. She always made her own breakfast. Then she walked to the bus. People on the bus were quiet. She liked that."
+  },
+  {
+    id: 'story-9', title: "First Day of School",
+    tags: [{ label: 'sequencing', type: 'purple' }, { label: 'emotion', type: 'white' }],
+    trains: "Trains: Sequencing",
+    text: "First, Mia woke up early. Next, she put on her new shoes. Then, she ate toast. After that, her mum took her to school. Finally, she met her teacher. She smiled."
+  },
+  {
+    id: 'story-10', title: "Making a Sandwich",
+    tags: [{ label: 'sequencing', type: 'purple' }],
+    trains: "Trains: Sequencing",
+    text: "First, get two pieces of bread. Next, spread butter on both. Then, add cheese and ham. After that, press them together. Finally, cut it in half. Now it is ready to eat."
+  },
+  {
+    id: 'story-11', title: "The Shy Fox",
+    tags: [{ label: 'comprehension', type: 'orange' }, { label: 'emotion', type: 'white' }],
+    trains: "Trains: Comprehension — inference",
+    text: "The fox sat behind the bush. She watched the other animals play. She wanted to join them. But her legs would not move. One rabbit waved at her. She wagged her tail."
+  },
+  {
+    id: 'story-12', title: "The Old Boat",
+    tags: [{ label: 'comprehension', type: 'orange' }],
+    trains: "Trains: Comprehension — inference",
+    text: "The old man rowed slowly. His arms were tired. The fish were not biting. He looked at the sky. Dark clouds were coming. He turned the boat around."
+  },
+  {
+    id: 'story-13', title: "Words That Help",
+    tags: [{ label: 'vocabulary', type: 'greenish' }],
+    trains: "Trains: Vocabulary — antonyms",
+    text: "Some days feel heavy. Other days feel light. Some news is sad. Other news is glad. Some paths are long. Others are short. Every word has an opposite. That is what makes language rich."
+  },
+  {
+    id: 'story-14', title: "Big and Small",
+    tags: [{ label: 'vocabulary', type: 'greenish' }, { label: 'fluency', type: 'pink' }],
+    trains: "Trains: Vocabulary — size/degree words",
+    text: "An ant is tiny. A cat is small. A dog is medium. A horse is large. An elephant is enormous. A whale is gigantic. Each word tells you just how big something is."
+  },
+  {
+    id: 'story-15', title: "The Brave Girl",
+    tags: [{ label: 'fluency', type: 'pink' }, { label: 'emotion', type: 'white' }],
+    trains: "Trains: Fluency — repeated reading",
+    text: "Anya was afraid of the dark. She was afraid of loud sounds. She was afraid of big dogs. But one day she was afraid and she went anyway. That is what brave means."
+  },
+  {
+    id: 'story-16', title: "The Lost Mitten",
+    tags: [{ label: 'fluency', type: 'pink' }],
+    trains: "Trains: Fluency — phrasing",
+    text: "One cold morning, / Maya lost her mitten. / She looked under the chair. / She looked behind the door. / She looked inside her bag. / It was in her pocket / all along."
+  },
+  {
+    id: 'story-17', title: "Why Kai Was Late",
+    tags: [{ label: 'comprehension', type: 'orange' }, { label: 'sequencing', type: 'purple' }],
+    trains: "Trains: Comprehension — cause and effect",
+    text: "Kai missed the bus because he slept in. He slept in because he stayed up too late. He stayed up too late because he could not stop reading. His book was just too good."
+  },
+  {
+    id: 'story-18', title: "The Kind Word",
+    tags: [{ label: 'emotion', type: 'white' }, { label: 'comprehension', type: 'orange' }],
+    trains: "Trains: Emotion / self-regulation",
+    text: "Leo felt left out at lunch. No one sat with him. He wanted to cry but did not. Instead, he said hi to a new girl. She smiled. They both felt better."
+  },
+  {
+    id: 'story-19', title: "My Brain Is Different",
+    tags: [{ label: 'emotion', type: 'white' }],
+    trains: "Trains: Self-awareness / confidence",
+    text: "Some words mix up in my head. Letters flip and spin. Reading takes me longer. But I notice things others miss. I think in pictures. My brain works differently. Different is not wrong."
+  },
+  {
+    id: 'story-20', title: "The Spelling Bee",
+    tags: [{ label: 'vocabulary', type: 'greenish' }, { label: 'comprehension', type: 'orange' }],
+    trains: "Trains: Metacognition / spelling strategies",
+    text: "Before the spelling bee, Rosa made a plan. She broke each word into parts. She said it slowly. She pictured it. She wrote it in the air. When her name was called, she was ready."
+  }
+];
+
+function ReadAlongSection({ userId, selectedStoryId, onSelectStory }: { userId: string, selectedStoryId: string, onSelectStory: (id: string) => void }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentWordIdx, setCurrentWordIdx] = useState(-1);
   const [speed, setSpeed] = useState(400);
 
-  const story = {
-    title: "The Brave Little Ant",
-    text: "Once upon a time, there was a tiny ant named Andy. He found a giant cookie in the grass. It was too heavy to carry alone. Andy called his friends for help. Together, they moved the cookie to their home. They had a big feast that night!"
-  };
-
+  const story = STORIES.find(s => s.id === selectedStoryId) || STORIES[0];
   const words = story.text.split(' ');
 
   useEffect(() => {
@@ -297,9 +415,20 @@ function ReadAlongSection({ userId }: { userId: string }) {
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 py-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex items-center justify-between mb-10 flex-wrap gap-4">
         <div>
-          <h3 className="text-3xl font-medium text-moss mb-2">{story.title}</h3>
+          <div className="flex items-center gap-4 mb-2">
+            <h3 className="text-3xl font-medium text-moss">{story.title}</h3>
+            <select 
+              value={selectedStoryId} 
+              onChange={(e) => { onSelectStory(e.target.value); setIsPlaying(false); setCurrentWordIdx(-1); }}
+              className="bg-moss/5 border border-moss/10 rounded-xl px-3 py-1.5 text-sm font-medium text-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+            >
+              {STORIES.map(s => (
+                <option key={s.id} value={s.id}>{s.title}</option>
+              ))}
+            </select>
+          </div>
           <p className="text-text-muted text-sm italic">Press play to start!</p>
         </div>
         <div className="flex items-center gap-4 bg-moss/5 p-2 rounded-2xl border border-moss/10">
@@ -421,76 +550,55 @@ function PhonicsLabSection({ userId }: { userId: string }) {
   );
 }
 
-function VisualModeSection({ userId }: { userId: string }) {
-  const [text, setText] = useState('The cat and the dog play in the sun near the tree');
 
-  const iconMap: Record<string, string> = {
-    cat: 'ph:cat-bold', dog: 'ph:dog-bold', sun: 'ph:sun-bold',
-    tree: 'ph:tree-bold', bird: 'ph:bird-bold', fish: 'ph:fish-bold',
-    house: 'ph:house-bold', apple: 'ph:apple-bold', car: 'ph:car-bold',
-    book: 'ph:book-bold', star: 'ph:star-bold', moon: 'ph:moon-bold', heart: 'ph:heart-bold',
+
+function StoryModeSection({ userId, selectedStoryId, onSelectStory }: { userId: string, selectedStoryId: string, onSelectStory: (id: string) => void }) {
+  const getTagColor = (type: string) => {
+    switch (type) {
+      case 'red': return 'bg-[#f4ebe6] text-[#b4412f]';
+      case 'green': return 'bg-[#e0f1e8] text-[#1e6144]';
+      case 'pink': return 'bg-[#f8e5ee] text-[#8e295e]';
+      case 'blue': return 'bg-[#e5eff8] text-[#295e8e]';
+      case 'purple': return 'bg-[#eae4f9] text-[#4b3096]';
+      case 'orange': return 'bg-[#faebd7] text-[#9b5110]';
+      case 'greenish': return 'bg-[#e5f8e5] text-[#298e29]';
+      case 'white': default: return 'bg-[#f4f4f4] text-[#444]';
+    }
   };
 
-  const tokens = text.toLowerCase().split(/\s+/);
-
-  return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 py-6 max-w-4xl mx-auto">
-      <div className="text-center mb-10">
-        <div className="w-16 h-16 rounded-2xl bg-clay/10 text-clay flex items-center justify-center mx-auto mb-6">
-          <span className="iconify text-3xl" data-icon="solar:eye-bold-duotone" />
-        </div>
-        <h3 className="text-3xl font-medium text-moss mb-4">Visual Mode</h3>
-        <p className="text-text-muted">Type something below to translate it into visual concepts.</p>
-      </div>
-
-      <div className="space-y-8">
-        <textarea value={text} onChange={(e) => setText(e.target.value)}
-          className="w-full h-32 p-8 rounded-[2.5rem] border border-moss/10 bg-moss/5 focus:outline-none focus:ring-2 focus:ring-moss/20 transition-all text-xl font-medium text-moss resize-none"
-          placeholder="Type words like cat, dog, sun, tree..." />
-
-        <div className="p-12 bg-white rounded-[3.5rem] border border-moss/5 shadow-sm min-h-[200px] flex flex-wrap gap-6 items-center justify-center">
-          {tokens.map((token, i) => {
-            const cleanToken = token.replace(/[.,!?;:]/g, '');
-            const icon = iconMap[cleanToken];
-            if (icon) {
-              return (
-                <div key={i} style={{ animation: 'correctPulse 0.3s ease' }}
-                  className="flex flex-col items-center gap-3 p-4 bg-moss/5 rounded-2xl border border-moss/10 min-w-[100px]">
-                  <span className="iconify text-5xl text-moss" data-icon={icon} />
-                  <span className="text-xs font-bold uppercase tracking-widest text-clay">{cleanToken}</span>
-                </div>
-              );
-            }
-            return <span key={i} className="text-2xl text-moss/30 font-medium">{token}</span>;
-          })}
-          {tokens.length === 0 && <p className="text-moss/20 italic">Start typing to see the magic...</p>}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StoryModeSection({ userId }: { userId: string }) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 py-12 text-center">
-      <div className="w-20 h-20 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-8">
+      <div className="w-20 h-20 rounded-full bg-moss/5 text-moss flex items-center justify-center mx-auto mb-8">
         <span className="iconify text-4xl" data-icon="solar:book-bold-duotone" />
       </div>
       <h3 className="text-3xl font-medium text-moss mb-4">Adaptive Stories</h3>
       <p className="text-text-muted max-w-xl mx-auto mb-10">Stories that adjust to your reading level, providing just the right amount of challenge.</p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
-        <div className="p-10 bg-purple-50/50 border border-purple-100 rounded-[3rem] relative overflow-hidden group hover:bg-white transition-all cursor-pointer">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-200/20 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform" />
-          <span className="bg-purple-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block">Easy</span>
-          <h4 className="text-2xl font-medium text-purple-900 mb-2">The Brave Little Ant</h4>
-          <p className="text-sm text-purple-900/60 leading-relaxed">A short story with simple words and visual aids.</p>
-        </div>
-
-        <div className="p-10 bg-moss/5 border border-moss/10 rounded-[3rem] relative overflow-hidden opacity-50 grayscale">
-          <h4 className="text-2xl font-medium text-moss mb-2">Mystery at the Farm</h4>
-          <p className="text-sm text-text-muted">Complete Level 1 to unlock more stories!</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+        {STORIES.map((story, index) => (
+          <div 
+            key={story.id}
+            onClick={() => onSelectStory(story.id)}
+            className="p-6 bg-white border border-moss/10 rounded-2xl relative overflow-hidden group hover:scale-[1.01] hover:bg-moss/5 transition-all cursor-pointer shadow-sm shadow-moss/5"
+          >
+            <div className="flex justify-between items-start mb-4">
+              <h4 className="text-xl font-bold text-moss leading-tight pr-8 tracking-tight">{story.title}</h4>
+              <span className="text-moss/40 text-sm font-semibold">#{index + 1}</span>
+            </div>
+            
+            <div className="flex flex-wrap gap-2 mb-3">
+              {story.tags.map(tag => (
+                <span key={tag.label} className={`text-[10px] font-bold px-2.5 py-1 rounded-full tracking-wide ${getTagColor(tag.type)}`}>
+                  {tag.label}
+                </span>
+              ))}
+            </div>
+            <p className="text-xs font-medium text-moss/60 mb-3">{story.trains}</p>
+            <p className="text-sm text-text-muted leading-relaxed max-w-sm" style={{ letterSpacing: '0.01em' }}>
+              {story.text}
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   );

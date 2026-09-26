@@ -2,9 +2,11 @@ import { useAccessibilityStore } from '../../stores/accessibilityStore'
 
 const OVERLAY_COLORS: Record<string, string> = {
   none:     'transparent',
+  cream:    'rgba(255, 253, 245, VAR)',
   yellow:   'rgba(255, 247, 150, VAR)',
   blue:     'rgba(173, 216, 230, VAR)',
   mint:     'rgba(152, 251, 152, VAR)',
+  pink:     'rgba(255, 228, 225, VAR)',
   rose:     'rgba(255, 182, 193, VAR)',
   lavender: 'rgba(230, 190, 255, VAR)',
   peach:    'rgba(255, 218, 185, VAR)',
@@ -25,6 +27,8 @@ export default function ColorOverlay() {
   if (colorOverlay === 'none') return null
 
   const baseColor = OVERLAY_COLORS[colorOverlay]
+  if (!baseColor) return null;
+
   const color = baseColor.replace('VAR', String(overlayOpacity))
 
   return (

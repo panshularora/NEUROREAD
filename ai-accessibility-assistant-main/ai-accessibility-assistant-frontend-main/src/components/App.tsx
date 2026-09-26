@@ -1,17 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { simplifyText, ensureUserId, setUserId } from '../services/api';
+
+declare global {
+  interface Window {
+    gsap: any;
+    ScrollTrigger: any;
+    Iconify: any;
+  }
+}
 import AssistiveMode from './AssistiveMode';
 import Hero from './Hero';
-import History, { DEFAULT_HISTORY } from './History';
+import History from './History';
 import LearningMode from './LearningMode';
 import PracticeMode from './PracticeMode';
 import Navbar from './Navbar';
 import SimplifierModal from './SimplifierModal';
-import Dashboard from '../pages/Dashboard.jsx';
+import Dashboard from '../pages/Dashboard';
 import BookBackground from './BookBackground';
 import AccessibilityMenu from './AccessibilityMenu';
 import Onboarding from './Onboarding';
-import { useAccessibilityStore } from '../stores/accessibilityStore';
 import ColorOverlay from './accessibility/ColorOverlay';
 import ReadingRuler from './accessibility/ReadingRuler';
 import '../styles/accessibility.css';
@@ -28,7 +35,7 @@ function safeGsap() {
   }
 }
 
-function nextDifficulty(current) {
+function nextDifficulty(current: string) {
   const v = (current || '').toLowerCase();
   if (v === 'high') return 'Moderate';
   if (v === 'moderate') return 'Low';
@@ -36,7 +43,6 @@ function nextDifficulty(current) {
 }
 
 export default function App() {
-  const { font, fontSize, lineHeight, letterSpacing, wordSpacing } = useAccessibilityStore();
   const [mode, setMode] = useState('assistive');
   const [simplifierOpen, setSimplifierOpen] = useState(false);
   
@@ -54,11 +60,11 @@ export default function App() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [metrics, setMetrics] = useState(null);
+  const [metrics, setMetrics] = useState<any>(null);
   const [simplifiedText, setSimplifiedText] = useState('');
 
-  const [expandedHistoryId, setExpandedHistoryId] = useState(null);
-  const [historySessions, setHistorySessions] = useState([]);
+  const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
+  const [historySessions, setHistorySessions] = useState<any[]>([]);
 
   const contentRef = useRef(null);
 
@@ -126,9 +132,11 @@ export default function App() {
     );
   }, []);
 
-  const setModeSafe = useCallback((nextMode) => {
+  const setModeSafe = useCallback((nextMode: string) => {
     setMode(nextMode);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (nextMode !== 'assistive') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, []);
 
   const closeSimplifier = useCallback(() => {
@@ -166,7 +174,7 @@ export default function App() {
       };
 
       setSimplifiedText(adapted.simplifiedText || '');
-      setMetrics(adapted);
+      setMetrics(adapted as any);
 
       setHistorySessions((prev) => {
         const live = {
@@ -185,26 +193,15 @@ export default function App() {
         };
         return [live, ...prev];
       });
-    } catch (e) {
+    } catch (e: any) {
       setError(e?.message || 'Error reaching the API.');
     } finally {
       setLoading(false);
     }
   }, [inputText, profile, userId]);
 
-  const allHistorySessions = useMemo(() => [...historySessions, ...DEFAULT_HISTORY], [historySessions]);
-
   return (
-    <div
-      className="bg-cream text-charcoal font-sans antialiased overflow-x-hidden selection:bg-moss selection:text-cream min-h-screen"
-      style={{
-        fontFamily: font === 'opendyslexic' ? 'OpenDyslexic, sans-serif' : font === 'arial' ? 'Arial, sans-serif' : undefined,
-        fontSize: fontSize,
-        lineHeight: lineHeight,
-        letterSpacing: `${letterSpacing}em`,
-        wordSpacing: `${wordSpacing}em`,
-      }}
-    >
+    <div className="bg-cream text-charcoal font-sans antialiased overflow-x-hidden selection:bg-moss selection:text-cream min-h-screen">
       {/* First-time onboarding */}
       {showOnboarding && (
         <Onboarding onComplete={() => setShowOnboarding(false)} />
@@ -220,7 +217,7 @@ export default function App() {
           open={simplifierOpen}
           onClose={closeSimplifier}
           userId={userId}
-          onUserIdChange={(id) => setUserIdState(id)}
+          onUserIdChange={(id: string) => setUserIdState(id)}
           profile={profile}
           onProfileChange={setProfile}
           inputText={inputText}
@@ -244,12 +241,15 @@ export default function App() {
           }}
         />
 
-        <main ref={contentRef} className="pt-24 transition-all duration-500">
+        <main 
+          ref={contentRef} 
+          className={`transition-all duration-500 ${mode !== 'assistive' ? 'pt-32' : ''}`}
+        >
           {mode === 'assistive' && (
             <>
               <Hero />
               {impactSection}
-              <section className="py-24 bg-white/40">
+              <section id="assistive-mode-section" className="py-24 bg-white/40">
                 <AssistiveMode
                   active={true}
                   onOpenSimplifier={() => setSimplifierOpen(true)}
@@ -257,13 +257,13 @@ export default function App() {
                   onSetInputText={setInputText}
                 />
               </section>
-              <History sessions={allHistorySessions} expandedId={expandedHistoryId} onToggleExpanded={setExpandedHistoryId} />
+              <History userId={userId} />
             </>
           )}
 
           {mode === 'learning' && <LearningMode active={true} />}
           {mode === 'practice' && <PracticeMode active={true} />}
-          {mode === 'dashboard' && <Dashboard />}
+          {mode === 'dashboard' && <Dashboard onNavigate={setModeSafe} />}
         </main>
       </div>
     </div>

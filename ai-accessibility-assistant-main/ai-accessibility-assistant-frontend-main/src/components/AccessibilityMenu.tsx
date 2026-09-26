@@ -8,7 +8,6 @@ const AccessibilityMenu = () => {
   const [lineSpacing, setLineSpacing] = useState(() => Number(localStorage.getItem('lineSpacing')) || 1.5);
   const [fontFamily, setFontFamily] = useState(() => localStorage.getItem('fontFamily') || 'default');
   const [theme, setTheme] = useState(() => localStorage.getItem('theme-style') || 'beige');
-  const [focusMode, setFocusMode] = useState(() => localStorage.getItem('focusMode') === 'true');
 
   useEffect(() => {
     const html = document.documentElement;
@@ -22,17 +21,13 @@ const AccessibilityMenu = () => {
     // Theme application
     html.classList.remove('theme-green', 'theme-blue', 'theme-beige', 'theme-pink');
     html.classList.add(`theme-${theme}`);
-
-    // Focus mode
-    html.classList.toggle('focus-active', focusMode);
     
     localStorage.setItem('fontSize', fontSize.toString());
     localStorage.setItem('letterSpacing', letterSpacing.toString());
     localStorage.setItem('lineSpacing', lineSpacing.toString());
     localStorage.setItem('fontFamily', fontFamily);
     localStorage.setItem('theme-style', theme);
-    localStorage.setItem('focusMode', focusMode.toString());
-  }, [fontSize, letterSpacing, lineSpacing, fontFamily, theme, focusMode]);
+  }, [fontSize, letterSpacing, lineSpacing, fontFamily, theme]);
 
   const themes = [
     { id: 'beige', name: 'Warm Beige', color: '#FDFBF7' },
@@ -179,30 +174,6 @@ const AccessibilityMenu = () => {
                   </div>
                 </section>
 
-                {/* 4. Reading Tools */}
-                <section>
-                  <label className="text-xs font-mono uppercase tracking-widest text-text-muted mb-4 block">Reading Focus Tools</label>
-                  <div className="p-4 rounded-2xl bg-moss/5 border border-moss/10 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="iconify text-lg text-moss" data-icon="solar:eye-linear" />
-                        <span className="text-sm font-medium">Focus Mode</span>
-                      </div>
-                      <button
-                        onClick={() => setFocusMode(!focusMode)}
-                        className={`w-12 h-6 rounded-full relative transition-colors ${focusMode ? 'bg-clay' : 'bg-moss/20'}`}
-                      >
-                        <motion.div
-                          animate={{ x: focusMode ? 24 : 4 }}
-                          className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm"
-                        />
-                      </button>
-                    </div>
-                    <p className="text-[10px] text-text-muted leading-relaxed">
-                      Highlights the current line and dims surrounding text to improve focus.
-                    </p>
-                  </div>
-                </section>
               </div>
 
               <div className="mt-auto pt-10 text-center">
@@ -213,7 +184,6 @@ const AccessibilityMenu = () => {
                     setLineSpacing(1.5);
                     setFontFamily('default');
                     setTheme('beige');
-                    setFocusMode(false);
                     document.documentElement.classList.remove('dark');
                   }}
                   className="text-xs font-medium text-moss/40 hover:text-moss underline decoration-dotted underline-offset-4"
