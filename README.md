@@ -7,20 +7,28 @@
 **Recognition:** 1st place of 200+ teams at the WiCyS hackathon. <!-- Panshul: confirm the exact event name/year and whether it was entered as "NeuroCare" -->
 **Team:** built by Panshul Arora and [Naman Rai](https://github.com/namanraii). The code here is kept in sync with the final team version in [namanraii/NeuroRead](https://github.com/namanraii/NeuroRead).
 
-**Status (Sep 2026):** the full app runs locally. The frontend is live at [neuroread-final-main-everyhting.vercel.app](https://neuroread-final-main-everyhting.vercel.app) (built from the [`neuroread-final-main-everyhting`](https://github.com/panshularora/neuroread-final-main-everyhting) deploy repo). The backend is not deployed yet, so on the live site the features that call the API (simplify, learning, practice, dashboard) do not work; run the backend locally for those. The 35 tests in `tests/` run in GitHub Actions on every push.
+**Status (Sep 2026):** the full app runs locally. The frontend is live at [neuroread-final-main-everyhting.vercel.app](https://neuroread-final-main-everyhting.vercel.app) (built from the [`neuroread-final-main-everyhting`](https://github.com/panshularora/neuroread-final-main-everyhting) deploy repo). The backend is not deployed yet, so the live site shows a "server isn't connected" notice and only the reading settings work there; run the backend locally for simplifying, lessons, games and progress. The 43 tests in `tests/` run in GitHub Actions on every push.
+
+| Home | Simplifier |
+|---|---|
+| ![Home page](docs/screenshots/home.png) | ![Simplifier with before/after reading load](docs/screenshots/simplifier.png) |
+| **Practice game** | **Learning (mobile)** |
+| ![Dictation game](docs/screenshots/practice-game.png) | <img src="docs/screenshots/mobile-learning.png" alt="Adaptive practice on a phone" width="260"> |
 
 ## Features
 
 | Area | What it does |
 |---|---|
-| **Smart Simplifier** (Assistive) | Rewrites text with Llama 3.1 8B via Groq at a level picked from the reader profile or the text's cognitive load. Returns the simplified text, bullet points, definitions, step-by-step explanation, before/after cognitive-load scores and keywords. Without an API key a deterministic rule-based simplifier runs instead |
+| **Smart Simplifier** (Assistive) | Rewrites text with Llama 3.1 8B via Groq at a level picked from the reader profile or the text's cognitive load. Returns the simplified text, bullet points, definitions, step-by-step explanation, before/after cognitive-load scores and keywords. Without an API key a deterministic rule-based simplifier runs instead: it swaps jargon for plain words, drops filler linking words and splits long sentences, and lists the swapped words as definitions |
 | **Cognitive load score** | 0-100 from Flesch reading ease (40%), sentence length (30%) and complex-word ratio (30%), computed with textstat and spaCy |
-| **Reading support** | Word-by-word read-aloud (Web Speech API, gTTS on the backend), phoneme colours for b/d/p/q, reading ruler, colour overlays, OpenDyslexic, adjustable size and spacing; settings persist in `localStorage` |
+| **Reading settings** | Atkinson Hyperlegible by default with an OpenDyslexic option, adjustable text size, letter and line spacing, warm-paper, soft-tint and dark themes, a reading ruler (move it with Alt+arrow keys), tinted overlays and b/d/p/q letter colouring; settings persist in `localStorage` |
+| **Read aloud** | Word-by-word read-aloud with highlighting (gTTS on the backend, the browser's speech synthesis as a fallback) |
 | **Documents and OCR** | Upload PDF/DOCX/TXT for server-side extraction and simplification; photos and camera captures are read in the browser with Tesseract.js |
 | **AI tutor, vocab cards, concept graph, heatmap** | Ask questions about a passage, get vocabulary cards and a keyword graph, see which sentences are hardest |
-| **Learning Mode** | Adaptive exercises. After every answer Bayesian Knowledge Tracing updates P(know) per skill, IRT 2PL scores the item, a ZPD rule adjusts difficulty and SM-2 schedules the next review. Also Read Along, Phonics Lab and Story Mode |
+| **Learning Mode** | Adaptive exercises. After every answer Bayesian Knowledge Tracing updates P(know) per skill, IRT 2PL scores the item, a ZPD rule adjusts difficulty and SM-2 schedules the next review. Also Read along, Phonics lab and Stories |
 | **Practice Mode** | Nine mini-games: dictation (phonetic spellings accepted), error correction, b/d word sorting, syllable tapping, word chains, sentence builder, rhyme finder, speed flashcards, homophones |
-| **Dashboard** | Reading sessions (time, pauses, errors, difficult words) with a behavioural cognitive-load score, trend, difficulty distribution and plain-language insights |
+| **Progress** | Reading sessions (time, pauses, errors, difficult words) with a behavioural cognitive-load score, trend, difficulty distribution and plain-language insights. The PDF report uses only the logged data and says it is not a diagnosis |
+| **Accessibility** | Keyboard navigation with visible focus, skip link, labelled dialogs with focus management, `prefers-reduced-motion` support, a mobile tab bar, and a clear notice instead of silent failures when the API is unreachable |
 
 The learner models (`backend/app/ml/bkt_engine.py`, `irt_scorer.py`, `sm2_scheduler.py`, `zpd_flow.py`) are hand-implemented with fixed parameters. Nothing is trained from data.
 
@@ -92,7 +100,7 @@ ai-accessibility-assistant-main/
     app/models/                 SQLAlchemy models (SQLite by default)
   ai-accessibility-assistant-frontend-main/   React 19 + Vite + Tailwind + Zustand
     src/components/             modes, practice games, accessibility tools
-    src/pages/Dashboard.tsx     progress dashboard
+    src/pages/Dashboard.tsx     progress page
     src/services/api.js         API client (VITE_API_URL)
   tests/                        pytest
 ```
@@ -130,10 +138,11 @@ ai-accessibility-assistant-main/
 ## Demo path (3 minutes)
 
 1. Open the app and finish onboarding (age 8, "Reading words aloud" + "Spelling").
-2. Assistive: open the Smart Simplifier, paste a medical paragraph, simplify, compare the before/after scores, turn on dyslexia mode and read it aloud.
-3. Learning → Adaptive AI: answer a few phonics items and watch the b/d skill bar move.
-4. Practice: play Dictation (try "laf" for "laugh") and Word Sorting.
-5. Dashboard: see the logged sessions and the insights.
+2. Read: click "Simplify a text", paste a medical paragraph, simplify, compare the before/after reading load, turn on dyslexia mode and read it aloud.
+3. Learn → Adaptive practice: answer a few phonics items and watch the b/d skill bar move.
+4. Practice: play Dictation (try "laf" for "laugh") and Word sorting.
+5. Progress: see the logged sessions and the insights.
+6. Reading settings: switch to OpenDyslexic, turn on the ruler and a tinted overlay.
 
 ## License
 
