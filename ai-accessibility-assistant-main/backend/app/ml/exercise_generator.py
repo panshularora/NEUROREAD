@@ -296,8 +296,8 @@ PRACTICE_GAMES_POOL = {
         {"id": "ws1", "bucket1": "starts with b", "bucket2": "starts with d", "words": [
             {"word": "bat", "bucket": 1}, {"word": "dog", "bucket": 2}, {"word": "bed", "bucket": 1}, {"word": "dad", "bucket": 2}
         ]},
-        {"id": "ws2", "bucket1": "ends with p", "bucket2": "ends with q", "words": [
-            {"word": "map", "bucket": 1}, {"word": "iraq", "bucket": 2}, {"word": "top", "bucket": 1}, {"word": "macaq", "bucket": 2}
+        {"id": "ws2", "bucket1": "ends with b", "bucket2": "ends with d", "words": [
+            {"word": "crab", "bucket": 1}, {"word": "bed", "bucket": 2}, {"word": "web", "bucket": 1}, {"word": "road", "bucket": 2}
         ]},
         {"id": "ws3", "bucket1": "starts with p", "bucket2": "starts with q", "words": [
             {"word": "pig", "bucket": 1}, {"word": "queen", "bucket": 2}, {"word": "pen", "bucket": 1}, {"word": "quick", "bucket": 2}

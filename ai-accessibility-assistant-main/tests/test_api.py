@@ -84,6 +84,15 @@ def test_practice_generate_returns_an_item_for_every_game(client, game_type):
     assert item in PRACTICE_GAMES_POOL[game_type]
 
 
+@pytest.mark.parametrize("item", PRACTICE_GAMES_POOL["word_sorting"], ids=lambda i: i["id"])
+def test_word_sorting_buckets_match_their_labels(item):
+    labels = {1: item["bucket1"], 2: item["bucket2"]}
+    for entry in item["words"]:
+        position, letter = labels[entry["bucket"]].split(" with ")
+        word = entry["word"]
+        assert (word.startswith(letter) if position == "starts" else word.endswith(letter)), (word, labels)
+
+
 def test_practice_generate_unknown_game(client):
     res = client.get("/api/learning/practice/generate", params={"game_type": "chess"})
     assert res.status_code == 200
