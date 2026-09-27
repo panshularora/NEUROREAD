@@ -5,7 +5,7 @@
 **What:** a web app for dyslexic readers. Paste or upload dense text and it is simplified, scored for cognitive load and read aloud with b/d/p/q colour coding. Children get adaptive phonics exercises and nine short practice games; every session feeds a progress dashboard.
 **Why:** dense text is a barrier for dyslexic readers. Simplifying the text and then practising the specific weak skills (b/d distinction, spelling, syllables, homophones) targets both problems.
 **Recognition:** 1st place of 200+ teams at the WiCyS hackathon. <!-- Panshul: confirm the exact event name/year and whether it was entered as "NeuroCare" -->
-**Team:** built by Panshul Arora and [Naman Rai](https://github.com/namanraii). The code here is kept in sync with the final team version in [namanraii/NeuroRead](https://github.com/namanraii/NeuroRead).
+**Team:** built by Panshul Arora and [Naman Rai](https://github.com/namanraii) and [Tanmay Singh](https://github.com/tannnmayy). The code here is kept in sync with the final team version in [namanraii/NeuroRead](https://github.com/namanraii/NeuroRead).
 
 **Status (Sep 2026):** the full app runs locally. The frontend is live at [neuroread-final-main-everyhting.vercel.app](https://neuroread-final-main-everyhting.vercel.app) (built from the [`neuroread-final-main-everyhting`](https://github.com/panshularora/neuroread-final-main-everyhting) deploy repo). The backend is not deployed yet, so the live site shows a "server isn't connected" notice and only the reading settings work there; run the backend locally for simplifying, lessons, games and progress. The 43 tests in `tests/` run in GitHub Actions on every push.
 
