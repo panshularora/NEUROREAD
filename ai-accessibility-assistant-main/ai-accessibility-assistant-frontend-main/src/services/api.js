@@ -51,7 +51,7 @@ async function rawFetch(path, { method = 'GET', headers, body, timeoutMs = 20000
   }
 }
 
-export async function request(path, options = {}) {
+async function request(path, options = {}) {
   const method = options.method || 'GET';
   const res = await rawFetch(path, options);
 
@@ -87,10 +87,6 @@ function mapProfile(profileLabel) {
 }
 
 // ─── Assistive APIs ──────────────────────────────────────────────
-
-export async function postSimplify({ text, profile, user_id, enable_dyslexia_support, enable_audio }) {
-  return simplifyText(text, profile, user_id, enable_dyslexia_support, enable_audio);
-}
 
 export async function simplifyText(text, profile, user_id, enable_dyslexia_support = true, enable_audio = false) {
   const userId = user_id || getStoredUserId();
@@ -186,10 +182,6 @@ export async function getChunks(text) {
   });
 }
 
-export async function getDifficultyPrediction(userId) {
-  return request(`/personalization/difficulty/${encodeURIComponent(userId)}`);
-}
-
 export async function askCompanion(text, user_action) {
   return request('/assistive/companion', {
     method: 'POST',
@@ -198,111 +190,13 @@ export async function askCompanion(text, user_action) {
   });
 }
 
-export async function updatePersonalization(userId, session_metrics) {
-  return request('/personalization/update', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ user_id: userId, session_metrics }),
-  });
-}
-
-// ─── Legacy Learning APIs (kept for backward compat) ─────────────
-
-export async function getPhonics(word) {
-  return request('/learning/phonics', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ word }),
-  });
-}
-
-export async function getLearningExercise(text, blanks = 3) {
-  return request('/learning/exercise', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, blanks }),
-  });
-}
-
-export async function getSpellingPractice(text, max_words = 5) {
-  return request('/learning/spelling', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, max_words }),
-  });
-}
-
-export async function getComprehension(text, max_questions = 3) {
-  return request('/learning/comprehension', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, max_questions }),
-  });
-}
-
-// ─── New Learning APIs ───────────────────────────────────────────
+// ─── Letter flashcards ───────────────────────────────────────────
 
 export async function getFlashcard(letter) {
   return request('/learning/flashcards', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ letter }),
-  });
-}
-
-export async function getSoundMatch(sound) {
-  return request('/learning/sound-match', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sound }),
-  });
-}
-
-export async function getBuildWord(word) {
-  return request('/learning/build-word', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ word }),
-  });
-}
-
-export async function getRhyme(word) {
-  return request('/learning/rhyme', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ word }),
-  });
-}
-
-export async function getPictureMatch(word) {
-  return request('/learning/picture-match', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ word }),
-  });
-}
-
-export async function getLesson(userId) {
-  return request(`/learning/lesson/${encodeURIComponent(userId)}`);
-}
-
-export async function getLearningProgress(userId) {
-  return request(`/learning/progress/${encodeURIComponent(userId)}`);
-}
-
-export async function updateLearningProgress(userId, exercise, correct) {
-  return request('/learning/progress', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ user_id: userId, exercise, correct }),
-  });
-}
-
-export async function checkAnswer(gameType, userAnswer, correctAnswer, gameContext = null) {
-  return request('/learning/check-answer', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ gameType, userAnswer, correctAnswer, gameContext }),
   });
 }
 
