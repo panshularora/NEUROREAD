@@ -472,6 +472,7 @@ export default function SimplifierModal({
                 ) : simplifiedText ? (
                   <div className="rounded-xl bg-paper border border-line px-5 py-4">
                     <InteractiveReader
+                      key={simplifiedText}
                       text={simplifiedText}
                       dyslexiaStyle={dyslexiaStyle}
                       difficultWordsSet={difficultWordsSet}
