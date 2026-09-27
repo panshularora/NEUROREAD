@@ -174,11 +174,9 @@ export default function App() {
               <Hero />
               <section id="assistive-mode-section" className="py-16">
                 <AssistiveMode
-                  active={true}
                   onOpenSimplifier={() => navigate('read')}
                   onRunSimplifier={runSimplifier}
                   onSetInputText={setInputText}
-                  onNavigate={navigate}
                 />
               </section>
               <HowItWorks />
